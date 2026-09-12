@@ -53,6 +53,7 @@ export default function App() {
           <SummaryScreen
             walk={m.summaryWalk}
             destination={m.destinationsById[m.summaryWalk.destinationId]}
+            isNewDiscovery={m.isNewDiscovery}
             onWalkAgain={m.goTime}
             onViewHistory={m.goHistory}
           />

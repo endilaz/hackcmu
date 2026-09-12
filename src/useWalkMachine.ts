@@ -107,6 +107,7 @@ export function useWalkMachine() {
   const [slowFix, setSlowFix] = useState(false);
   const [locError, setLocError] = useState<LocationError | null>(null);
   const [summaryWalk, setSummaryWalk] = useState<Walk | null>(null);
+  const [discoveredWalkId, setDiscoveredWalkId] = useState<string | null>(null);
   const [detailWalkId, setDetailWalkId] = useState<string | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
   const [simEnabled, setSimEnabled] = useState(initialSim.enabled);
@@ -178,8 +179,9 @@ export function useWalkMachine() {
         status: arrived ? "completed" : "abandoned",
         arrived,
       };
+      const isNewDiscovery = arrived && !current.visitedDestinationIds.includes(walk.destinationId);
       const visited =
-        arrived && !current.visitedDestinationIds.includes(walk.destinationId)
+        isNewDiscovery
           ? [...current.visitedDestinationIds, walk.destinationId]
           : current.visitedDestinationIds;
       commit({
@@ -191,6 +193,7 @@ export function useWalkMachine() {
       trackerRef.current = initTracker();
       simRef.current?.walkTo(null);
       setProviderRunning(false);
+      setDiscoveredWalkId(isNewDiscovery ? ended.id : null);
       setSummaryWalk(ended);
       setScreen("summary");
     },
@@ -524,6 +527,7 @@ export function useWalkMachine() {
     elapsedMs,
     remainingMeters,
     summaryWalk,
+    isNewDiscovery: summaryWalk !== null && summaryWalk.id === discoveredWalkId,
     detailWalk,
     activeDestination,
     destinationsById,

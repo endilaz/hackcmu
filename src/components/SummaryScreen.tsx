@@ -22,6 +22,7 @@ export default function SummaryScreen({
   walk,
   destination,
   readOnly,
+  isNewDiscovery,
   onWalkAgain,
   onViewHistory,
   onBack,
@@ -50,6 +51,15 @@ export default function SummaryScreen({
             {walk.arrived ? `You made it to ${destinationName}` : "Walk ended"}
           </h1>
         </div>
+
+        {isNewDiscovery && (
+          <div className="discovery-celebration" role="status" aria-live="polite">
+            <span className="discovery-celebration__burst" aria-hidden="true">
+              <i /> <i /> <i /> <i /> <i /> <i />
+            </span>
+            <span className="discovery-celebration__text">New place discovered ✦</span>
+          </div>
+        )}
 
         <MapView
           mode="fit"
