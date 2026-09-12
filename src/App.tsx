@@ -124,7 +124,7 @@ export default function App() {
     <div className={`app${m.showTabs ? " app--tabbed" : ""}`}>
       <header className="topbar">
         <h1 className="topbar__title">
-          Spare Walk
+          Walkable
           {m.simEnabled && (
             <span className="sim-badge" title="Simulated GPS is active">
               SIM

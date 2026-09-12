@@ -1,6 +1,6 @@
-# Spare Walk
+# Walkable
 
-College students have odd 20–60 minute gaps between commitments. Spare Walk asks how
+College students have odd 20–60 minute gaps between commitments. Walkable asks how
 many free minutes you have, reads your location, and picks **one** nearby place you can
 walk to and back in that time. It shows the destination on a map, then tracks the walk
 live with browser geolocation — drawing your GPS trail and accumulating distance — until
@@ -178,7 +178,7 @@ progress rather than stranding it.
   Locked badges stay on the shelf, muted but legible. There is no XP or level system —
   the only numbers shown are ones `achievements.ts` actually computes.
 - **Friends** — a leaderboard your real stats compete on.
-  **The friends are seeded demo data.** Spare Walk has no server, so there is nobody
+  **The friends are seeded demo data.** Walkable has no server, so there is nobody
   to sync with; the screen says so in a banner that can't be dismissed. Your own
   numbers on it are real.
 - **Calendar import** — reached from the home screen. Drop in an `.ics` export (Google

@@ -86,11 +86,6 @@ export default function TimeInputScreen({
             aria-valuetext={`${minutes} minutes`}
             style={{ "--time-slider-fill": `${sliderPct}%` } as CSSProperties}
           />
-          <div className="time-slider__ticks" aria-hidden="true">
-            {QUICK_PICK_MINUTES.map((value) => (
-              <span key={value} style={{ left: `${((value - MIN_FREE_MINUTES) / (MAX_FREE_MINUTES - MIN_FREE_MINUTES)) * 100}%` }} />
-            ))}
-          </div>
           <div className="time-slider__scale">
             <span className="overline">5 min</span>
             <span className="overline">3 hr</span>

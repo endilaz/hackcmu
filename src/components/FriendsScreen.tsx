@@ -14,7 +14,7 @@ function lastWalkLabel(friend: Friend): string {
 }
 
 /**
- * Friends leaderboard. Spare Walk has no backend, so every row here comes from
+ * Friends leaderboard. Walkable has no backend, so every row here comes from
  * local seed data (src/data/friends.ts). The banner says so up front, sits
  * directly under the title, and has no dismiss control - it is not a toast.
  */
@@ -26,7 +26,7 @@ export default function FriendsScreen({ rows, friends }: FriendsScreenProps) {
 
         <div className="banner banner--warn">
           <span>
-            Demo data — Spare Walk has no server yet, so these friends are simulated. Your
+            Demo data — Walkable has no server yet, so these friends are simulated. Your
             own stats are real.
           </span>
         </div>

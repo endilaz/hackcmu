@@ -1692,8 +1692,6 @@ h3 {
 }
 
 .time-slider__scale .overline { font-size: 9px; font-weight: 500; color: var(--ink-warm); }
-.time-slider__ticks { position: absolute; top: 19px; right: 0; left: 0; height: 7px; pointer-events: none; }
-.time-slider__ticks span { position: absolute; width: 2px; height: 7px; border-radius: 2px; background: rgba(253, 252, 249, .8); transform: translateX(-1px); }
 
 .time-home__footer { gap: 9px; padding: 16px 24px max(18px, env(safe-area-inset-bottom)); border: 0; background: var(--paper); }
 .time-home__footer .btn--link { align-self: center; min-height: 32px; color: var(--ink-warm); text-decoration: none; }
