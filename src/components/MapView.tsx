@@ -17,13 +17,10 @@ export type MapViewProps = {
   className?: string;
   /** Called when the USER drags or zooms the map (not when we move it ourselves). */
   onUserInteract?: () => void;
-<<<<<<< HEAD
   /** Called after a double-tap restores the automatic map view. */
   onRecenter?: () => void;
-=======
   /** Opt-in memories are rendered as small blooms at their captured GPS point. */
   echoes?: Echo[];
->>>>>>> refs/remotes/origin/main
 };
 
 const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -188,12 +185,9 @@ export default function MapView(props: MapViewProps) {
   const destMarkerRef = useRef<L.Marker | null>(null);
   const startMarkerRef = useRef<L.Marker | null>(null);
   const trailLineRef = useRef<L.Polyline | null>(null);
-<<<<<<< HEAD
   const routeLineRef = useRef<L.Polyline | null>(null);
-=======
   const dashedLineRef = useRef<L.Polyline | null>(null);
   const echoMarkersRef = useRef(new Map<string, L.Marker>());
->>>>>>> refs/remotes/origin/main
 
   // Always holds the latest props so the long-lived map event listeners
   // (registered once, below) never read stale values from the render that
@@ -297,12 +291,9 @@ export default function MapView(props: MapViewProps) {
       destMarkerRef.current = null;
       startMarkerRef.current = null;
       trailLineRef.current = null;
-<<<<<<< HEAD
       routeLineRef.current = null;
-=======
       dashedLineRef.current = null;
       echoMarkersRef.current.clear();
->>>>>>> refs/remotes/origin/main
       userHasControlRef.current = false;
       hasCenteredOnceRef.current = false;
       lastFitSignatureRef.current = null;
@@ -319,11 +310,8 @@ export default function MapView(props: MapViewProps) {
     syncDestinationMarker(map, destMarkerRef, destination);
     syncRoute(map, routeLineRef, route);
     syncTrail(map, trailLineRef, trail);
-<<<<<<< HEAD
-=======
     syncDashedLine(map, dashedLineRef, user, destination, dashedToDestination);
     syncEchoes(map, echoMarkersRef.current, props.echoes ?? []);
->>>>>>> refs/remotes/origin/main
 
     const beginProgrammaticMove = () => {
       programmaticMoveRef.current = true;
