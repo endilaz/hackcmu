@@ -29,7 +29,7 @@ import type {
 import { RealLocationProvider } from "./location/RealLocationProvider";
 import { SimulatedLocationProvider } from "./location/SimulatedLocationProvider";
 import type { Tab } from "./screenProps";
-import type { AppState, Destination, LatLng, Walk } from "./types";
+import type { AppState, Destination, EchoMood, EchoVisibility, LatLng, Walk } from "./types";
 import { useWalkingRoute } from "./useWalkingRoute";
 
 export type Screen =
@@ -373,6 +373,17 @@ export function useWalkMachine() {
 
   const endWalkEarly = useCallback(() => finishWalk(false), [finishWalk]);
 
+  const createEcho = useCallback((input: { text: string; photo: string | null; mood: EchoMood; visibility: EchoVisibility }) => {
+    const walk = summaryWalk;
+    if (!walk || !walk.arrived || appStateRef.current.echoes.some((echo) => echo.walkId === walk.id)) return;
+    const point = walk.trail.at(-1) ?? destinationsById[walk.destinationId];
+    if (!point) return;
+    commit({
+      ...appStateRef.current,
+      echoes: [...appStateRef.current.echoes, { id: newId(), walkId: walk.id, destinationId: walk.destinationId, lat: point.lat, lng: point.lng, createdAt: providerRef.current.now(), ...input }],
+    });
+  }, [commit, destinationsById, summaryWalk]);
+
   const goTime = useCallback(() => {
     setSuggestion(null);
     setExcludeIds([]);
@@ -527,6 +538,7 @@ export function useWalkMachine() {
     elapsedMs,
     remainingMeters,
     summaryWalk,
+    createEcho,
     isNewDiscovery: summaryWalk !== null && summaryWalk.id === discoveredWalkId,
     detailWalk,
     activeDestination,

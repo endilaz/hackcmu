@@ -41,6 +41,24 @@ export type AppState = {
   walks: Walk[]; // completed/abandoned walks, newest last
   activeWalk: Walk | null;
   visitedDestinationIds: string[];
+  echoes: Echo[];
+};
+
+export type EchoMood = "calm" | "curious" | "energize";
+export type EchoVisibility = "private" | "friends" | "public";
+
+/** A local, opt-in memory attached to the final GPS point of a completed walk. */
+export type Echo = {
+  id: string;
+  walkId: string;
+  destinationId: string;
+  lat: number;
+  lng: number;
+  createdAt: number;
+  text: string;
+  photo: string | null;
+  mood: EchoMood;
+  visibility: EchoVisibility;
 };
 
 // --- Progress / gamification ----------------------------------------------

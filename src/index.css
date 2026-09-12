@@ -983,6 +983,23 @@ h3 {
   color: #715424;
 }
 
+/* --- Echoes ------------------------------------------------------------- */
+.echo-prompt { width: 100%; padding: 14px; border: 1px dashed #bfa46a; border-radius: var(--radius); background: #fff9e7; color: #775d29; font: 600 15px var(--sans); cursor: pointer; }
+.echo-composer { display: flex; flex-direction: column; gap: 10px; padding: 15px; border: 1px solid #d9c486; border-radius: var(--radius); background: #fffaf0; }
+.echo-composer .faint { margin: 3px 0 0; }
+.echo-composer__text, .echo-visibility select { width: 100%; border: 1px solid #dfd6c2; border-radius: var(--radius-sm); background: #fffdf8; color: var(--ink); font: 14px var(--sans); }
+.echo-composer__text { min-height: 44px; padding: 10px; }
+.echo-composer__row, .echo-composer__actions { display: flex; gap: 8px; }
+.echo-photo { display: inline-flex; align-items: center; padding: 8px 10px; border: 1px solid #dfd6c2; border-radius: var(--pill); color: var(--ink-soft); font-size: 12px; cursor: pointer; }
+.echo-photo input { display: none; }
+.echo-moods { display: flex; flex: 1; gap: 4px; }
+.echo-choice { flex: 1; padding: 6px 3px; border: 1px solid #dfd6c2; border-radius: var(--pill); background: transparent; color: var(--ink-warm); font: 11px var(--sans); cursor: pointer; }
+.echo-choice--on { border-color: var(--green); background: var(--green-pale); color: var(--green); font-weight: 700; }
+.echo-visibility { display: flex; align-items: center; gap: 8px; color: var(--ink-warm); font-size: 12px; }
+.echo-visibility select { flex: 1; padding: 7px; }
+.echo-composer__actions .btn { min-height: 42px; }
+.echo-bloom { display: grid !important; place-items: center; color: #c78732; font-size: 24px; line-height: 1; text-shadow: 0 1px 3px rgba(78, 50, 13, .28); }
+
 .discovery-celebration__text { font-family: var(--serif); font-size: 16px; animation: discovery-text .5s ease-out both; }
 .discovery-celebration__burst { position: absolute; left: 25px; top: 21px; width: 1px; height: 1px; }
 .discovery-celebration__burst i { position: absolute; display: block; width: 5px; height: 5px; border-radius: 50%; background: #edb749; animation: discovery-spark .75s cubic-bezier(.18,.75,.25,1) both; }

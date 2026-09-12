@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import * as L from "leaflet";
-import type { LatLng } from "../types";
+import type { Echo, LatLng } from "../types";
 
 export type MapViewProps = {
   /** "fit": fit bounds to all content. "follow": keep the user dot centred. */
@@ -17,8 +17,13 @@ export type MapViewProps = {
   className?: string;
   /** Called when the USER drags or zooms the map (not when we move it ourselves). */
   onUserInteract?: () => void;
+<<<<<<< HEAD
   /** Called after a double-tap restores the automatic map view. */
   onRecenter?: () => void;
+=======
+  /** Opt-in memories are rendered as small blooms at their captured GPS point. */
+  echoes?: Echo[];
+>>>>>>> refs/remotes/origin/main
 };
 
 const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -45,6 +50,18 @@ const DEST_ICON = L.divIcon({
   iconSize: [18, 18],
   iconAnchor: [9, 9],
 });
+
+const ECHO_ICON = L.divIcon({ className: "echo-bloom", html: "✦", iconSize: [22, 22], iconAnchor: [11, 11] });
+
+function syncEchoes(map: L.Map, refs: Map<string, L.Marker>, echoes: Echo[]) {
+  const wanted = new Set(echoes.map((echo) => echo.id));
+  refs.forEach((marker, id) => { if (!wanted.has(id)) { map.removeLayer(marker); refs.delete(id); } });
+  for (const echo of echoes) {
+    const marker = refs.get(echo.id);
+    if (marker) marker.setLatLng([echo.lat, echo.lng]);
+    else refs.set(echo.id, L.marker([echo.lat, echo.lng], { icon: ECHO_ICON, keyboard: false }).addTo(map));
+  }
+}
 
 const TRAIL_STYLE: L.PolylineOptions = {
   color: "#1b382b",
@@ -171,7 +188,12 @@ export default function MapView(props: MapViewProps) {
   const destMarkerRef = useRef<L.Marker | null>(null);
   const startMarkerRef = useRef<L.Marker | null>(null);
   const trailLineRef = useRef<L.Polyline | null>(null);
+<<<<<<< HEAD
   const routeLineRef = useRef<L.Polyline | null>(null);
+=======
+  const dashedLineRef = useRef<L.Polyline | null>(null);
+  const echoMarkersRef = useRef(new Map<string, L.Marker>());
+>>>>>>> refs/remotes/origin/main
 
   // Always holds the latest props so the long-lived map event listeners
   // (registered once, below) never read stale values from the render that
@@ -275,7 +297,12 @@ export default function MapView(props: MapViewProps) {
       destMarkerRef.current = null;
       startMarkerRef.current = null;
       trailLineRef.current = null;
+<<<<<<< HEAD
       routeLineRef.current = null;
+=======
+      dashedLineRef.current = null;
+      echoMarkersRef.current.clear();
+>>>>>>> refs/remotes/origin/main
       userHasControlRef.current = false;
       hasCenteredOnceRef.current = false;
       lastFitSignatureRef.current = null;
@@ -292,6 +319,11 @@ export default function MapView(props: MapViewProps) {
     syncDestinationMarker(map, destMarkerRef, destination);
     syncRoute(map, routeLineRef, route);
     syncTrail(map, trailLineRef, trail);
+<<<<<<< HEAD
+=======
+    syncDashedLine(map, dashedLineRef, user, destination, dashedToDestination);
+    syncEchoes(map, echoMarkersRef.current, props.echoes ?? []);
+>>>>>>> refs/remotes/origin/main
 
     const beginProgrammaticMove = () => {
       programmaticMoveRef.current = true;

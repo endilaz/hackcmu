@@ -1,4 +1,4 @@
-import type { AppState, TrailPoint, Walk } from "../types";
+import type { AppState, Echo, TrailPoint, Walk } from "../types";
 import type { SimSettings } from "../location/LocationProvider";
 import {
   DEFAULT_SIM_SPEED,
@@ -17,6 +17,7 @@ export const EMPTY_STATE: AppState = {
   walks: [],
   activeWalk: null,
   visitedDestinationIds: [],
+  echoes: [],
 };
 
 const DEFAULT_SIM: SimPersisted = {
@@ -32,6 +33,14 @@ const DEFAULT_SIM: SimPersisted = {
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null;
+}
+
+function isValidEcho(v: unknown): v is Echo {
+  if (!isPlainObject(v)) return false;
+  return typeof v.id === "string" && typeof v.walkId === "string" && typeof v.destinationId === "string" &&
+    isValidLat(v.lat) && isValidLng(v.lng) && isFiniteNumber(v.createdAt) && typeof v.text === "string" &&
+    (v.photo === null || typeof v.photo === "string") && (v.mood === "calm" || v.mood === "curious" || v.mood === "energize") &&
+    (v.visibility === "private" || v.visibility === "friends" || v.visibility === "public");
 }
 
 function isFiniteNumber(v: unknown): v is number {
@@ -101,6 +110,7 @@ function cloneState(state: AppState): AppState {
     walks: state.walks.map(cloneWalk),
     activeWalk: state.activeWalk ? cloneWalk(state.activeWalk) : null,
     visitedDestinationIds: [...state.visitedDestinationIds],
+    echoes: state.echoes.map((echo) => ({ ...echo })),
   };
 }
 
@@ -146,6 +156,8 @@ export function loadState(): AppState {
       walks,
       activeWalk,
       visitedDestinationIds: parsed.visitedDestinationIds,
+      // Echoes were added after schema v1 shipped, so their absence means an empty collection.
+      echoes: Array.isArray(parsed.echoes) ? parsed.echoes.filter(isValidEcho) : [],
     });
   } catch {
     return freshEmptyState();

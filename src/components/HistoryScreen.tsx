@@ -26,6 +26,7 @@ export default function HistoryScreen({
   totalDestinations,
   visitedCount,
   totalDistanceMeters,
+  echoes,
   onSelectWalk,
 }: HistoryScreenProps) {
   const [mode, setMode] = useState<Mode>("list");
@@ -77,6 +78,7 @@ export default function HistoryScreen({
           walks={walks}
           destinations={destinations}
           visitedDestinationIds={visitedDestinationIds}
+          echoes={echoes}
         />
       </div>
     );
