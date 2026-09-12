@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as L from "leaflet";
+import "../lib/globalLeaflet";
 import "leaflet.heat";
 import type { HeatmapScreenProps } from "../screenProps";
 
