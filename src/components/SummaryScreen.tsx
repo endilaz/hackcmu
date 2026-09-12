@@ -2,6 +2,7 @@ import type { SummaryScreenProps } from "../screenProps";
 import { formatDistance, formatDuration, formatPace } from "../lib/geo";
 import MapView from "./MapView";
 import RippleButton from "./RippleButton";
+import WalkBadge from "./WalkBadge";
 
 const startedAtFormatter = new Intl.DateTimeFormat(undefined, {
   month: "short",
@@ -86,6 +87,17 @@ export default function SummaryScreen({
             </div>
           )}
         </div>
+
+        {!readOnly && (
+          <div className="earned-walk-badge">
+            <WalkBadge walk={walk} label={`Your ${destinationName} walk badge`} />
+            <div>
+              <span className="overline">New collectible</span>
+              <strong>{destinationName} badge</strong>
+              <p className="faint">Your route has been pressed into a one-of-a-kind keepsake.</p>
+            </div>
+          </div>
+        )}
 
         <div className="screen__spacer" />
       </div>

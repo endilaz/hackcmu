@@ -1,5 +1,7 @@
 import type { AchievementsScreenProps } from "../screenProps";
 import { formatDistance } from "../lib/geo";
+import WalkBadge from "./WalkBadge";
+import PinboardRoom from "./PinboardRoom";
 
 /** Badges measured in meters - their progress is rendered with formatDistance, not raw numbers. */
 const DISTANCE_BADGE_IDS = new Set(["5km-total", "10km-total"]);
@@ -11,8 +13,14 @@ const DISTANCE_BADGE_IDS = new Set(["5km-total", "10km-total"]);
  * haven't earned yet is the point. There is no XP or level system here: the
  * only numbers shown are ones achievements.ts actually computes.
  */
-export default function AchievementsScreen({ stats, badges }: AchievementsScreenProps) {
+export default function AchievementsScreen({
+  stats,
+  badges,
+  walks,
+  destinationsById,
+}: AchievementsScreenProps) {
   const earnedCount = badges.filter((b) => b.earned).length;
+  const collectedWalks = walks.filter((walk) => walk.status !== "active").reverse();
 
   return (
     <div className="screen">
@@ -39,6 +47,39 @@ export default function AchievementsScreen({ stats, badges }: AchievementsScreen
           {stats.uniqueDestinations} places discovered · longest streak{" "}
           {stats.longestStreakDays} {stats.longestStreakDays === 1 ? "day" : "days"}
         </p>
+
+        <PinboardRoom walks={walks} destinationsById={destinationsById} />
+
+        <div className="collection-heading">
+          <div>
+            <h2>Walk collection</h2>
+            <p className="faint">A route-shaped keepsake for every finished walk.</p>
+          </div>
+          <span className="faint">{collectedWalks.length} collected</span>
+        </div>
+
+        {collectedWalks.length === 0 ? (
+          <div className="empty collection-empty">
+            <p className="empty__mark">Your first badge is waiting.</p>
+            <p className="faint">Finish a walk and its route becomes a little keepsake here.</p>
+          </div>
+        ) : (
+          <ul className="walk-collection" aria-label="Collected walk badges">
+            {collectedWalks.map((walk) => {
+              const destination = destinationsById[walk.destinationId];
+              const name = destination?.name ?? "Mystery stroll";
+              return (
+                <li key={walk.id} className="walk-collection__item">
+                  <WalkBadge walk={walk} compact label={`${name} walk badge`} />
+                  <span className="walk-collection__name">{name}</span>
+                  <span className="walk-collection__meta">
+                    {walk.arrived ? "Arrived" : "Stroll"} · {formatDistance(walk.distanceMeters)}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
 
         <div
           style={{

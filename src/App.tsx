@@ -67,7 +67,14 @@ export default function App() {
         );
 
       case "achievements":
-        return <AchievementsScreen stats={m.stats} badges={m.badges} />;
+        return (
+          <AchievementsScreen
+            stats={m.stats}
+            badges={m.badges}
+            walks={m.appState.walks}
+            destinationsById={m.destinationsById}
+          />
+        );
 
       case "friends":
         return <FriendsScreen rows={m.leaderboard} friends={m.friends} />;

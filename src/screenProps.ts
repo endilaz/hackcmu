@@ -110,6 +110,8 @@ export type HeatmapScreenProps = {
 export type AchievementsScreenProps = {
   stats: Stats;
   badges: Badge[];
+  walks: Walk[];
+  destinationsById: Record<string, Destination>;
 };
 
 export type CalendarScreenProps = {
