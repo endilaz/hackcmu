@@ -1,8 +1,8 @@
 import AchievementsScreen from "./components/AchievementsScreen";
 import ActiveWalkScreen from "./components/ActiveWalkScreen";
+import BottomTabs from "./components/BottomTabs";
 import CalendarScreen from "./components/CalendarScreen";
 import FriendsScreen from "./components/FriendsScreen";
-import HeatmapScreen from "./components/HeatmapScreen";
 import HistoryScreen from "./components/HistoryScreen";
 import SimulatorPanel from "./components/SimulatorPanel";
 import SuggestionScreen from "./components/SuggestionScreen";
@@ -66,33 +66,11 @@ export default function App() {
           />
         );
 
-      case "heatmap":
-        return (
-          <HeatmapScreen
-            walks={m.appState.walks}
-            destinations={m.destinations}
-            visitedDestinationIds={m.appState.visitedDestinationIds}
-            onBack={m.goHistory}
-          />
-        );
-
       case "achievements":
-        return (
-          <AchievementsScreen
-            stats={m.stats}
-            badges={m.badges}
-            onBack={m.goHistory}
-          />
-        );
+        return <AchievementsScreen stats={m.stats} badges={m.badges} />;
 
       case "friends":
-        return (
-          <FriendsScreen
-            rows={m.leaderboard}
-            friends={m.friends}
-            onBack={m.goHistory}
-          />
-        );
+        return <FriendsScreen rows={m.leaderboard} friends={m.friends} />;
 
       case "calendar":
         return <CalendarScreen onUseGap={m.useGap} onBack={m.goTime} />;
@@ -102,14 +80,12 @@ export default function App() {
           <HistoryScreen
             walks={m.appState.walks}
             destinationsById={m.destinationsById}
+            destinations={m.destinations}
+            visitedDestinationIds={m.appState.visitedDestinationIds}
             totalDestinations={m.totalDestinations}
             visitedCount={m.visitedCount}
             totalDistanceMeters={m.totalDistanceMeters}
             onSelectWalk={m.selectWalk}
-            onBack={m.goBackFromHistory}
-            onOpenHeatmap={m.goHeatmap}
-            onOpenAchievements={m.goAchievements}
-            onOpenFriends={m.goFriends}
           />
         );
     }
@@ -117,6 +93,9 @@ export default function App() {
     return (
       <TimeInputScreen
         minutes={m.minutes}
+        stats={m.stats}
+        visitedCount={m.visitedCount}
+        totalDestinations={m.totalDestinations}
         onMinutesChange={m.setMinutes}
         onFind={() => m.findWalk()}
         locating={m.locating}
@@ -129,10 +108,8 @@ export default function App() {
     );
   }
 
-  const showHistoryButton = m.screen === "time" || m.screen === "suggestion";
-
   return (
-    <div className="app">
+    <div className={`app${m.showTabs ? " app--tabbed" : ""}`}>
       <header className="topbar">
         <h1 className="topbar__title">
           Spare Walk
@@ -142,22 +119,11 @@ export default function App() {
             </span>
           )}
         </h1>
-        <div className="topbar__actions">
-          {showHistoryButton && (
-            <button
-              type="button"
-              className="btn btn--icon"
-              onClick={m.goHistory}
-              aria-label="View walk history"
-              title="History"
-            >
-              🕘
-            </button>
-          )}
-        </div>
       </header>
 
       {renderScreen()}
+
+      {m.showTabs && <BottomTabs active={m.activeTab} onSelect={m.selectTab} />}
 
       {m.simEnabled && (
         <SimulatorPanel

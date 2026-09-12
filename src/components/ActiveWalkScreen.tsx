@@ -3,7 +3,11 @@ import type { ActiveWalkScreenProps } from "../screenProps";
 import { formatDistance, formatDuration } from "../lib/geo";
 import MapView from "./MapView";
 
-/** The screen shown for the duration of a walk (plan.md 9.3). */
+/**
+ * A walk in progress: the map is the content, and the paper sheet floats over
+ * it carrying the three live numbers. No tab bar - this is a focused mode, not
+ * a place you browse from.
+ */
 export default function ActiveWalkScreen({
   walk,
   destination,
@@ -33,6 +37,10 @@ export default function ActiveWalkScreen({
           recenterNonce={recenterNonce}
           onUserInteract={() => setShowRecenter(true)}
         />
+        <div className="map-pill">
+          <span aria-hidden="true">→</span>
+          <span className="map-pill__text">Heading to {destination.name}</span>
+        </div>
         {showRecenter && (
           <button type="button" className="map-btn" onClick={handleRecenter}>
             Recenter
@@ -40,29 +48,29 @@ export default function ActiveWalkScreen({
         )}
       </div>
 
-      <div className="screen__pad">
-        <p className="muted">Heading to {destination.name}</p>
+      <div className="sheet">
+        <div className="sheet__handle" />
 
-        <div className="stats">
-          <div className="stat">
-            <span className="stat__value">{formatDistance(walk.distanceMeters)}</span>
-            <span className="stat__label">Walked</span>
+        <div className="facts">
+          <div className="fact">
+            <span className="fact__value">{formatDistance(walk.distanceMeters)}</span>
+            <span className="overline">Walked</span>
           </div>
-          <div className="stat">
-            <span className="stat__value">{formatDuration(elapsedMs)}</span>
-            <span className="stat__label">Elapsed</span>
+          <div className="fact">
+            <span className="fact__value">{formatDuration(elapsedMs)}</span>
+            <span className="overline">Elapsed</span>
           </div>
-          <div className="stat">
-            <span className="stat__value">{formatDistance(remainingMeters)}</span>
-            <span className="stat__label">To go</span>
+          <div className="fact">
+            <span className="fact__value">{formatDistance(remainingMeters)}</span>
+            <span className="overline">To go</span>
           </div>
         </div>
-      </div>
 
-      <div className="screen__footer">
         {confirming ? (
           <>
-            <p className="muted">End this walk?</p>
+            <p className="muted" style={{ textAlign: "center" }}>
+              End this walk?
+            </p>
             <div className="btn-row">
               <button
                 type="button"

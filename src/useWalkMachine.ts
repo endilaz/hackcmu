@@ -27,6 +27,7 @@ import type {
 } from "./location/LocationProvider";
 import { RealLocationProvider } from "./location/RealLocationProvider";
 import { SimulatedLocationProvider } from "./location/SimulatedLocationProvider";
+import type { Tab } from "./screenProps";
 import type { AppState, Destination, LatLng, Walk } from "./types";
 
 export type Screen =
@@ -36,10 +37,34 @@ export type Screen =
   | "summary"
   | "history"
   | "historyDetail"
-  | "heatmap"
   | "achievements"
   | "calendar"
   | "friends";
+
+/**
+ * Which tab a screen belongs to. The focused flows (suggestion, active walk,
+ * summary, calendar import) all live under Walk, so the tab bar never loses
+ * its place while you're mid-loop.
+ */
+const TAB_FOR_SCREEN: Record<Screen, Tab> = {
+  time: "walk",
+  suggestion: "walk",
+  active: "walk",
+  summary: "walk",
+  calendar: "walk",
+  history: "history",
+  historyDetail: "history",
+  achievements: "progress",
+  friends: "friends",
+};
+
+/** Screens that are places you browse, rather than one-decision flows. */
+const TABBED_SCREENS: ReadonlySet<Screen> = new Set<Screen>([
+  "time",
+  "history",
+  "achievements",
+  "friends",
+]);
 
 function clampMinutes(m: number): number {
   if (!Number.isFinite(m)) return MIN_FREE_MINUTES;
@@ -350,9 +375,28 @@ export function useWalkMachine() {
     setScreen(appStateRef.current.activeWalk ? "active" : "time");
   }, [detailWalkId]);
 
-  const goHeatmap = useCallback(() => setScreen("heatmap"), []);
-  const goAchievements = useCallback(() => setScreen("achievements"), []);
-  const goFriends = useCallback(() => setScreen("friends"), []);
+  /**
+   * Tab navigation. Tapping Walk mid-walk returns you to the walk in progress
+   * rather than dumping you back on the time picker and stranding it.
+   */
+  const selectTab = useCallback((tab: Tab) => {
+    setDetailWalkId(null);
+    switch (tab) {
+      case "walk":
+        setScreen(appStateRef.current.activeWalk ? "active" : "time");
+        return;
+      case "history":
+        setScreen("history");
+        return;
+      case "progress":
+        setScreen("achievements");
+        return;
+      case "friends":
+        setScreen("friends");
+        return;
+    }
+  }, []);
+
   const goCalendar = useCallback(() => setScreen("calendar"), []);
 
   /** A gap picked from an imported calendar goes straight into a search. */
@@ -473,9 +517,9 @@ export function useWalkMachine() {
     goHistory,
     goBackFromHistory,
     selectWalk,
-    goHeatmap,
-    goAchievements,
-    goFriends,
+    selectTab,
+    activeTab: TAB_FOR_SCREEN[screen],
+    showTabs: TABBED_SCREENS.has(screen),
     goCalendar,
     useGap,
     stats,

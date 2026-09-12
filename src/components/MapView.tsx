@@ -42,24 +42,25 @@ const START_ICON = L.divIcon({
 
 const DEST_ICON = L.divIcon({
   className: "pin pin--dest",
-  html: "📍",
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
 });
 
 const TRAIL_STYLE: L.PolylineOptions = {
-  color: "#15803d",
-  weight: 5,
-  opacity: 0.9,
+  color: "#1b382b",
+  weight: 4,
+  opacity: 0.95,
   lineCap: "round",
   lineJoin: "round",
 };
 
+// Straight, point-to-point, and hairline-thin on purpose: this is "as the crow
+// flies", not a route. There is no routing API behind it.
 const DASHED_STYLE: L.PolylineOptions = {
-  color: "#64748b",
-  weight: 3,
-  opacity: 0.65,
-  dashArray: "6 8",
+  color: "#4a524a",
+  weight: 1.5,
+  opacity: 0.75,
+  dashArray: "5 7",
   lineCap: "round",
 };
 

@@ -19,8 +19,15 @@ import type {
 import type { Suggestion } from "./lib/selection";
 import type { LocationError, SimSettings } from "./location/LocationProvider";
 
+/** The four primary destinations in the bottom tab bar. */
+export type Tab = "walk" | "history" | "progress" | "friends";
+
 export type TimeInputScreenProps = {
   minutes: number;
+  /** Real streak / discovery numbers for the quiet header strip. */
+  stats: Stats;
+  visitedCount: number;
+  totalDestinations: number;
   onMinutesChange: (minutes: number) => void;
   /** Disabled while locating. */
   onFind: () => void;
@@ -71,14 +78,13 @@ export type HistoryScreenProps = {
   /** Newest last, as stored. The screen reverses for display. */
   walks: Walk[];
   destinationsById: Record<string, Destination>;
+  /** Full seed list - the map view pins the ones actually reached. */
+  destinations: Destination[];
+  visitedDestinationIds: string[];
   totalDestinations: number;
   visitedCount: number;
   totalDistanceMeters: number;
   onSelectWalk: (walkId: string) => void;
-  onBack: () => void;
-  onOpenHeatmap: () => void;
-  onOpenAchievements: () => void;
-  onOpenFriends: () => void;
 };
 
 export type SimulatorPanelProps = {
@@ -99,13 +105,11 @@ export type HeatmapScreenProps = {
   walks: Walk[];
   destinations: Destination[];
   visitedDestinationIds: string[];
-  onBack: () => void;
 };
 
 export type AchievementsScreenProps = {
   stats: Stats;
   badges: Badge[];
-  onBack: () => void;
 };
 
 export type CalendarScreenProps = {
@@ -117,5 +121,4 @@ export type CalendarScreenProps = {
 export type FriendsScreenProps = {
   rows: LeaderboardRow[];
   friends: Friend[];
-  onBack: () => void;
 };

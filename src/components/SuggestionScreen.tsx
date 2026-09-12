@@ -2,7 +2,14 @@ import MapView from "./MapView";
 import type { SuggestionScreenProps } from "../screenProps";
 import { ROUND_TRIP } from "../constants";
 
-/** The "here's your walk" screen - the money shot (plan.md 9.2). */
+/**
+ * The payoff: one place, one decision. The map is the top of the screen and
+ * the destination name is the largest thing on the paper below it.
+ *
+ * The dashed line to the destination is deliberately straight - there is no
+ * routing API, and walk time is haversine x DETOUR_FACTOR. Drawing a
+ * street-following route here would promise navigation the app cannot do.
+ */
 export default function SuggestionScreen({
   suggestion,
   user,
@@ -27,7 +34,9 @@ export default function SuggestionScreen({
         />
       </div>
 
-      <div className="screen__pad">
+      <div className="sheet">
+        <div className="sheet__handle" />
+
         {overBudget && (
           <div className="banner banner--warn">
             <span>
@@ -37,32 +46,48 @@ export default function SuggestionScreen({
           </div>
         )}
 
-        <div className="card">
-          <h2>{destination.name}</h2>
-          {visited ? (
-            <span className="badge badge--visited">Visited before</span>
-          ) : (
-            <span className="badge badge--new">New to you</span>
-          )}
-          <p className="muted">{destination.blurb}</p>
-          {destination.category && <p className="faint">{destination.category}</p>}
-          <p className="muted">
-            ~{oneWayMinutes} min walk
-            {ROUND_TRIP ? ` · ~${roundTripMinutes} min round trip` : ""}
-          </p>
+        <div>
+          <span className={`badge badge--upper ${visited ? "badge--visited" : "badge--new"}`}>
+            {visited ? "Visited before" : "New to you"}
+          </span>
+          <h1 style={{ marginTop: 10 }}>{destination.name}</h1>
         </div>
-      </div>
 
-      <div className="screen__footer">
+        <p className="muted">{destination.blurb}</p>
+
+        <div className="facts facts--rule">
+          <div className="fact">
+            <span className="fact__value">{oneWayMinutes} min</span>
+            <span className="overline">One way</span>
+          </div>
+          {ROUND_TRIP && (
+            <div className="fact">
+              <span className="fact__value">{roundTripMinutes} min</span>
+              <span className="overline">Round trip</span>
+            </div>
+          )}
+          {destination.category && (
+            <div className="fact">
+              <span className="fact__value" style={{ fontSize: 17 }}>
+                {destination.category}
+              </span>
+              <span className="overline">Kind</span>
+            </div>
+          )}
+        </div>
+
         <button type="button" className="btn btn--primary" onClick={onStart}>
           Start walk
+          <span aria-hidden="true">→</span>
         </button>
-        <button type="button" className="btn btn--secondary" onClick={onReroll}>
-          Show me another
-        </button>
-        <button type="button" className="btn btn--link" onClick={onChangeTime}>
-          Change time
-        </button>
+        <div className="btn-row">
+          <button type="button" className="btn btn--secondary" onClick={onReroll}>
+            Show me another
+          </button>
+          <button type="button" className="btn btn--secondary" onClick={onChangeTime}>
+            Change time
+          </button>
+        </div>
       </div>
     </div>
   );

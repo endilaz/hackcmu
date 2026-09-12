@@ -84,28 +84,32 @@ export default function CalendarScreen({ onUseGap, onBack }: CalendarScreenProps
           </p>
         </div>
 
-        <div>
-          <label htmlFor="ics-file" className="faint">
+        <div className="dropzone">
+          <span className="dropzone__icon" aria-hidden="true">
+            🗓
+          </span>
+          <label htmlFor="ics-file" className="dropzone__label">
             Choose an .ics file
           </label>
-          <div>
-            <input
-              id="ics-file"
-              type="file"
-              accept=".ics,text/calendar"
-              onChange={(e) => {
-                void handleFile(e);
-              }}
-            />
-          </div>
           <p className="faint">
-            Google Calendar: Settings → Import/Export → Export. Apple Calendar: File → Export.
+            Google Calendar: Settings → Import/Export → Export.
+            <br />
+            Apple Calendar: File → Export.
           </p>
+          <input
+            id="ics-file"
+            className="dropzone__input"
+            type="file"
+            accept=".ics,text/calendar"
+            onChange={(e) => {
+              void handleFile(e);
+            }}
+          />
         </div>
 
         {status.kind === "idle" && (
           <div className="empty">
-            <p>Nothing imported yet.</p>
+            <p className="empty__mark">Nothing imported yet.</p>
             <p className="faint">
               Export your calendar above and we'll find today's free time for you.
             </p>
@@ -120,32 +124,41 @@ export default function CalendarScreen({ onUseGap, onBack }: CalendarScreenProps
 
         {status.kind === "empty" && (
           <div className="empty">
-            <p>No free gaps found today{fileName ? ` in ${fileName}` : ""}.</p>
+            <p className="empty__mark">No free gaps found today{fileName ? ` in ${fileName}` : ""}.</p>
             <p className="faint">Your day looks fully booked - try entering time manually instead.</p>
           </div>
         )}
 
         {status.kind === "gaps" && (
-          <ul className="list">
-            {status.gaps.map((gap) => {
-              const bounds = formatBounds(gap);
-              return (
-                <li key={`${gap.start}-${gap.end}`}>
-                  <button
-                    type="button"
-                    className="list__item"
-                    onClick={() => onUseGap(gap.minutes)}
-                  >
-                    <div className="list__main">
-                      <span className="list__title">{gap.minutes} min free</span>
-                      <span className="muted">{formatWindow(gap)}</span>
-                      {bounds && <span className="faint">{bounds}</span>}
-                    </div>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+          <>
+            <h2>Today's free gaps</h2>
+            <ul className="rows">
+              {status.gaps.map((gap) => {
+                const bounds = formatBounds(gap);
+                return (
+                  <li key={`${gap.start}-${gap.end}`}>
+                    <button
+                      type="button"
+                      className="row"
+                      onClick={() => onUseGap(gap.minutes)}
+                    >
+                      <span className="row__lead">
+                        {gap.minutes}
+                        <span className="tile__unit"> min</span>
+                      </span>
+                      <div className="row__main">
+                        <span className="muted">{formatWindow(gap)}</span>
+                        {bounds && <span className="faint">{bounds}</span>}
+                      </div>
+                      <span className="row__chevron" aria-hidden="true">
+                        ›
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
         )}
       </div>
     </div>

@@ -161,18 +161,28 @@ All 16 seeded destinations were verified against OpenStreetMap Nominatim on
 
 ## Beyond the core loop
 
-Reachable from **History**, plus calendar import from the home screen:
+A four-item bottom tab bar — **Walk / History / Progress / Friends** — is the primary
+navigation. The focused parts of the loop (suggestion, active walk, summary, calendar
+import) hide the tab bar: they're one-decision screens, not places you browse from, and
+they all belong to the Walk tab, so tapping **Walk** mid-walk returns you to the walk in
+progress rather than stranding it.
 
-- **Heatmap** — every GPS trail you've recorded, drawn as a heat layer over the map,
-  with pins on the places you've actually reached. Your exploration footprint.
+- **History** — past walks as hairline-separated rows, with a **List / Map** toggle.
+  *Map* is the heatmap: every GPS trail you've recorded as a heat layer, with pins on the
+  places you've actually reached. List and heatmap are the same data — your past walks —
+  so they're one screen with two views rather than two destinations. The heat gradient is
+  overridden to a warm sand → amber → terracotta ramp; `leaflet.heat`'s default
+  blue → lime → red fights the palette badly.
 - **Progress** — points, an 8-badge set, and daily streaks, all computed from walk
   history in `src/lib/achievements.ts`. Streaks use *local* calendar days, not UTC.
+  Locked badges stay on the shelf, muted but legible. There is no XP or level system —
+  the only numbers shown are ones `achievements.ts` actually computes.
 - **Friends** — a leaderboard your real stats compete on.
   **The friends are seeded demo data.** Spare Walk has no server, so there is nobody
   to sync with; the screen says so in a banner that can't be dismissed. Your own
   numbers on it are real.
-- **Calendar import** — drop in an `.ics` export (Google Calendar: Settings →
-  Import/Export → Export; Apple Calendar: File → Export) and the app finds today's
+- **Calendar import** — reached from the home screen. Drop in an `.ics` export (Google
+  Calendar: Settings → Import/Export → Export; Apple Calendar: File → Export) and it finds today's
   gaps between commitments and offers them as one-tap time choices. Parsed entirely
   in the browser: nothing is uploaded, no OAuth, no API key, works offline.
   Recurring events and real timezone conversion are not handled — `TZID` times are
@@ -188,6 +198,31 @@ Reachable from **History**, plus calendar import from the home screen:
 - **No backend, no database, no accounts.** State is a single `localStorage` key,
   `sparewalk.state.v1`.
 
+### The design system
+
+"Editorial Calm": warm paper, deep forest green, and Newsreader serif for every number
+and headline. Hierarchy comes from type scale, hairline rules and space — there are no
+drop shadows except on the two surfaces that genuinely float over the map. All of it
+lives in `src/index.css` as custom properties; no CSS framework.
+
+| Token | Value | Role |
+|---|---|---|
+| `--paper` | `#fcf9f2` | Page ground |
+| `--parchment` | `#fdfcf9` | Cards, tiles, floating chrome |
+| `--green` | `#1b382b` | Primary: buttons, serif numerals, active tab |
+| `--amber` | `#8a5a36` | Streak pill and the SIM badge, nothing else |
+| `--line` | `#e5e0d6` | Every hairline rule |
+| `--danger` | `#8c3a25` | Muted red-brown — ending a walk early is not an error |
+
+Two screen archetypes: **paper screens** (`.screen`) are cream and typographic and carry
+the tab bar; **map screens** (`.screen--map`) give the map the frame and float a paper
+sheet over it. The home screen's free-minutes value is a 116px serif numeral you tap to
+edit, not a form field.
+
+Fonts are **Newsreader** and **Plus Jakarta Sans** from Google Fonts, each with a local
+fallback stack (`Georgia` / `system-ui`), so a blocked or offline font fetch degrades
+rather than breaking layout.
+
 ```
 src/
   constants.ts                 every tunable number
@@ -201,7 +236,7 @@ src/
   lib/tracking.ts              trail filtering, distance, arrival detection
   lib/storage.ts               localStorage with validation and throttled writes
   location/                    LocationProvider interface, real GPS, simulator
-  components/                  MapView + the five screens + simulator panel
+  components/                  MapView, BottomTabs, the screens, simulator panel
 ```
 
 The pure logic in `lib/` is unit-tested (`npm test`) — that's where the walk-time

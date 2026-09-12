@@ -7,7 +7,19 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#14532d" />
+    <meta name="theme-color" content="#1b382b" />
+    <!--
+      Newsreader carries every number and headline; Plus Jakarta Sans carries
+      labels and body. Both have local fallbacks in index.css, so a failed or
+      offline font fetch degrades to Georgia / system-ui rather than breaking
+      the layout.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <title>Spare Walk</title>
   </head>
   <body>

@@ -1,31 +1,43 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as L from "leaflet";
-import {
-  createHeatLayer,
-  type HeatLayer,
-  type HeatPoint,
-} from "../lib/heat";
+import { createHeatLayer, type HeatLayer, type HeatPoint } from "../lib/heat";
 import type { HeatmapScreenProps } from "../screenProps";
 
 const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 const TILE_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
-// Leaflet's default marker images are broken by bundlers, so destinations use
-// the same divIcon pattern as MapView.
+/**
+ * leaflet.heat's default ramp runs blue -> cyan -> lime -> red, which fights
+ * the warm paper palette badly. These stops were sampled off the approved
+ * design and run pale sand -> amber -> terracotta instead.
+ */
+const HEAT_GRADIENT: Record<number, string> = {
+  0.2: "#cbb99b",
+  0.4: "#cab079",
+  0.5: "#d0aa69",
+  0.6: "#d49a56",
+  0.7: "#c87a3d",
+  0.8: "#a64a23",
+  1.0: "#9d3600",
+};
+
+// Leaflet's bundled marker images break under bundlers, so pins are divIcons.
 const DEST_ICON = L.divIcon({
   className: "pin pin--dest",
-  html: "📍",
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
 });
 
-/** "Where have you been" heatmap built from every recorded walk's GPS trail. */
+/**
+ * The map half of History: every recorded GPS trail as a heat layer, with pins
+ * on the places actually reached. Renders only the map - History owns the
+ * header, the stats and the List/Map toggle above it.
+ */
 export default function HeatmapScreen({
   walks,
   destinations,
   visitedDestinationIds,
-  onBack,
 }: HeatmapScreenProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -42,8 +54,6 @@ export default function HeatmapScreen({
     const visitedSet = new Set(visitedDestinationIds);
     return destinations.filter((d) => visitedSet.has(d.id));
   }, [destinations, visitedDestinationIds]);
-
-  const hasTrailData = heatPoints.length > 0;
 
   // --- Create the Leaflet map exactly once. -------------------------------
   useEffect(() => {
@@ -104,6 +114,8 @@ export default function HeatmapScreen({
         radius: 25,
         blur: 20,
         maxZoom: 17,
+        minOpacity: 0.3,
+        gradient: HEAT_GRADIENT,
       }).addTo(map);
     }
 
@@ -113,7 +125,7 @@ export default function HeatmapScreen({
     destMarkersRef.current = visitedDestinations.map((d) =>
       L.marker([d.lat, d.lng], { icon: DEST_ICON, keyboard: false })
         .addTo(map)
-        .bindTooltip(d.name, { direction: "top", offset: [0, -14] }),
+        .bindTooltip(d.name, { direction: "top", offset: [0, -12] }),
     );
 
     // Fit bounds once: prefer the actual trail, falling back to the
@@ -132,39 +144,9 @@ export default function HeatmapScreen({
     }
   }, [heatPoints, visitedDestinations, destinations]);
 
-  const distinctPlacesVisited = new Set(visitedDestinationIds).size;
-
   return (
-    <div className="screen screen--map">
-      <div className="screen__pad">
-        <button type="button" className="btn btn--icon" onClick={onBack} aria-label="Back">
-          ←
-        </button>
-
-        <h1>Where you've been</h1>
-
-        <div className="stats">
-          <div className="stat">
-            <span className="stat__value">{walks.length}</span>
-            <span className="stat__label">Walks</span>
-          </div>
-          <div className="stat">
-            <span className="stat__value">{distinctPlacesVisited}</span>
-            <span className="stat__label">Places visited</span>
-          </div>
-        </div>
-
-        {!hasTrailData && (
-          <div className="empty">
-            <p>No walks recorded yet.</p>
-            <p className="faint">Walks you take will trace out your heatmap here.</p>
-          </div>
-        )}
-      </div>
-
-      <div className="map-wrap">
-        <div ref={containerRef} className="map" />
-      </div>
+    <div className="map-wrap">
+      <div ref={containerRef} className="map" />
     </div>
   );
 }
