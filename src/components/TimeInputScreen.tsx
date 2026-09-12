@@ -3,6 +3,15 @@ import type { TimeInputScreenProps } from "../screenProps";
 import { MIN_FREE_MINUTES, MAX_FREE_MINUTES, QUICK_PICK_MINUTES } from "../constants";
 import RippleButton from "./RippleButton";
 
+function StatIcon({ type }: { type: "streak" | "walks" | "distance" }) {
+  const paths = {
+    streak: <path d="M12 2c2 4-1 6 2 9 1-2 3-3 3-6 3 3 4 6 4 10a9 9 0 1 1-18 0c0-3 2-6 5-8-1 4 1 5 2 6 0-5 2-7 2-11Z" />,
+    walks: <><path d="M8 4c2 0 3 2 2 4L8 12c-1 2-4 1-4-1l1-4c0-2 1-3 3-3Z" /><path d="M17 12c2 0 3 2 2 4l-2 4c-1 2-4 1-4-1l1-4c0-2 1-3 3-3Z" /></>,
+    distance: <><path d="M12 21s7-6 7-12a7 7 0 1 0-14 0c0 6 7 12 7 12Z" /><circle cx="12" cy="9" r="2" /></>,
+  };
+  return <svg className="stat-icon" viewBox="0 0 24 24" aria-hidden="true">{paths[type]}</svg>;
+}
+
 /**
  * Home. The free-minutes value is the hero: a 116px serif numeral, not a form
  * field. It's a pure readout - the inline slider directly beneath it is the
@@ -35,13 +44,14 @@ export default function TimeInputScreen({
 
   return (
     <div className="screen">
-      <div className="screen__pad screen__pad--fill">
-        <div className="progress">
+      <div className="screen__pad screen__pad--fill time-home">
+        <section className="time-card time-card--discovery">
           <div className="progress__head">
-            <span className="faint">
-              {visitedCount} of {totalDestinations} places discovered
-            </span>
-            <span className="faint">{discoveredPct}%</span>
+            <div>
+              <span className="overline">Places discovered</span>
+              <strong>{visitedCount} of {totalDestinations}</strong>
+            </div>
+            <span className="discovery-remaining">{Math.max(0, totalDestinations - visitedCount)} to go</span>
           </div>
           <div
             className="progress__track"
@@ -51,16 +61,24 @@ export default function TimeInputScreen({
             aria-valuemax={totalDestinations}
             aria-label="Places discovered"
           >
-            <div className="progress__fill" style={{ width: `${discoveredPct}%` }} />
+            <div className="progress__fill" style={{ width: `${discoveredPct}%` }}>
+              <svg className="progress__pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6 7-12a7 7 0 1 0-14 0c0 6 7 12 7 12Z" /><circle cx="12" cy="9" r="2" /></svg>
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div className="hero">
-          <span className="hero__value">{minutes}</span>
-          <span className="overline">Minutes free</span>
-        </div>
+        <section className="time-card time-card--minutes">
+          <div className="hero">
+            <div
+              className="hero__dial"
+              style={{ "--time-dial": `${sliderPct * 3.6}deg` } as CSSProperties}
+            >
+              <span className="hero__value">{minutes}</span>
+            </div>
+            <span className="overline">Minutes free</span>
+          </div>
 
-        <div className="time-slider">
+          <div className="time-slider">
           <input
             type="range"
             className="time-slider__input"
@@ -73,13 +91,18 @@ export default function TimeInputScreen({
             aria-valuetext={`${minutes} minutes`}
             style={{ "--time-slider-fill": `${sliderPct}%` } as CSSProperties}
           />
+          <div className="time-slider__ticks" aria-hidden="true">
+            {QUICK_PICK_MINUTES.map((value) => (
+              <span key={value} style={{ left: `${((value - MIN_FREE_MINUTES) / (MAX_FREE_MINUTES - MIN_FREE_MINUTES)) * 100}%` }} />
+            ))}
+          </div>
           <div className="time-slider__scale">
             <span className="overline">5 min</span>
             <span className="overline">3 hr</span>
           </div>
-        </div>
+          </div>
 
-        <div className="tiles" role="group" aria-label="Quick pick minutes">
+          <div className="tiles" role="group" aria-label="Quick pick minutes">
           {QUICK_PICK_MINUTES.map((value) => (
             <button
               key={value}
@@ -88,11 +111,13 @@ export default function TimeInputScreen({
               aria-pressed={value === minutes}
               onClick={() => pick(value)}
             >
+              {value === minutes && <span className="tile__check" aria-hidden="true">✓</span>}
               <span className="tile__value">{value}</span>
               <span className="tile__unit">min</span>
             </button>
           ))}
-        </div>
+          </div>
+        </section>
 
         {locating && slowFix && (
           <>
@@ -124,25 +149,27 @@ export default function TimeInputScreen({
           </>
         )}
 
-        <div className="screen__spacer" />
-
-        <div className="facts facts--rule">
+        <section className="facts facts--rule time-card time-card--stats">
           <div className="fact">
+            <StatIcon type="streak" />
             <span className="fact__value">{stats.currentStreakDays}</span>
             <span className="overline">Day streak</span>
           </div>
           <div className="fact">
+            <StatIcon type="walks" />
             <span className="fact__value">{stats.totalWalks}</span>
             <span className="overline">Walks</span>
           </div>
           <div className="fact">
+            <StatIcon type="distance" />
             <span className="fact__value">{(stats.totalMeters / 1000).toFixed(1)} km</span>
             <span className="overline">Total</span>
           </div>
-        </div>
+        </section>
+        <div className="screen__spacer" />
       </div>
 
-      <div className="screen__footer">
+      <div className="screen__footer time-home__footer">
         <RippleButton
           type="button"
           className="btn btn--primary"
@@ -153,7 +180,7 @@ export default function TimeInputScreen({
           {!locating && <span aria-hidden="true">→</span>}
         </RippleButton>
         <RippleButton type="button" className="btn btn--link" onClick={onOpenCalendar}>
-          Import my calendar
+          <span aria-hidden="true">▣</span> Import my calendar
         </RippleButton>
       </div>
     </div>

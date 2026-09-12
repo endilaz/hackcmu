@@ -22,6 +22,7 @@
   --ink: #1c201d;
   --ink-soft: #4a524a;
   --ink-faint: #7a847a;
+  --ink-warm: #796f62;
 
   /* Accents */
   --green: #1b382b;
@@ -305,6 +306,8 @@ h3 {
 .btn--primary {
   background: var(--green);
   color: var(--parchment);
+  min-height: 58px;
+  box-shadow: 0 8px 18px rgba(27, 56, 43, 0.2);
 }
 
 .btn--secondary {
@@ -437,9 +440,27 @@ h3 {
   color: inherit;
 }
 
+/* --- Walk home: cards, dial and discovery progress --------------------- */
+
+.time-home { gap: 16px; padding: 24px; }
+
+.time-card {
+  border: 1px solid rgba(78, 69, 55, 0.09);
+  border-radius: 16px;
+  background: var(--parchment);
+  box-shadow: 0 3px 12px rgba(49, 39, 23, 0.045);
+}
+
+.time-card--discovery { padding: 15px 16px; }
+.time-card--discovery .progress__head strong { display: block; margin-top: 3px; color: var(--green); font-family: var(--serif); font-size: 20px; font-weight: 500; }
+.discovery-remaining { padding: 5px 8px; border-radius: var(--pill); background: #f4ead7; color: var(--amber); font-size: 11px; font-weight: 700; }
+
+.time-card--minutes { padding: 18px 18px 16px; background: radial-gradient(circle at 50% 38%, #ebf1e7 0, #f9faf5 45%, var(--parchment) 74%); }
+.hero__dial { display: grid; place-items: center; width: 154px; height: 154px; border: 1px solid rgba(27, 56, 43, .16); border-radius: 50%; background: conic-gradient(var(--green) 0deg var(--time-dial, 0deg), rgba(27, 56, 43, .1) var(--time-dial, 0deg) 360deg); box-shadow: inset 0 0 0 7px #f8faf4, 0 5px 18px rgba(27, 56, 43, .08); }
+
 .hero__value {
   font-family: var(--serif);
-  font-size: 116px;
+  font-size: 92px;
   font-weight: 300;
   line-height: 0.92;
   letter-spacing: -0.03em;
@@ -455,7 +476,7 @@ h3 {
 /* Wraps rather than overflowing if QUICK_PICK_MINUTES ever gains an entry. */
 .tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(54px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(58px, 1fr));
   gap: 8px;
 }
 
@@ -467,7 +488,8 @@ h3 {
   gap: 1px;
   min-height: 60px;
   padding: 8px 0;
-  border-radius: var(--radius-lg);
+  position: relative;
+  border-radius: var(--pill);
   border: 1px solid var(--line);
   background: var(--parchment);
   color: var(--ink);
@@ -496,6 +518,8 @@ h3 {
   border-color: var(--green);
   color: var(--parchment);
 }
+
+.tile__check { position: absolute; top: 5px; right: 9px; font-size: 10px; color: #d9e8dc; }
 
 .tile--on .tile__unit {
   color: rgba(253, 252, 249, 0.7);
@@ -539,6 +563,10 @@ h3 {
   padding: 14px 0;
 }
 
+.time-card--stats { margin: 0; padding: 13px 6px; border: 0; background: #edf4ed; }
+.time-card--stats .fact + .fact { border-color: rgba(27, 56, 43, .12); }
+.stat-icon { width: 18px; height: 18px; margin-bottom: 1px; fill: none; stroke: var(--green); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
 /* --- Progress bar ------------------------------------------------------- */
 
 .progress {
@@ -555,7 +583,7 @@ h3 {
 }
 
 .progress__track {
-  height: 3px;
+  height: 8px;
   border-radius: var(--pill);
   background: var(--line);
   overflow: hidden;
@@ -565,7 +593,11 @@ h3 {
   height: 100%;
   background: var(--green);
   border-radius: var(--pill);
+  position: relative;
+  min-width: 0;
 }
+
+.progress__pin { position: absolute; right: -8px; top: 50%; width: 17px; height: 17px; padding: 2px; transform: translateY(-50%); border-radius: 50%; background: var(--green); fill: var(--parchment); stroke: var(--parchment); stroke-width: 2; }
 
 /* --- Streak pill -------------------------------------------------------- */
 
@@ -937,6 +969,38 @@ h3 {
 .earned-walk-badge strong { display: block; margin: 3px 0; color: var(--green); font-family: var(--serif); }
 .earned-walk-badge .faint { margin: 0; font-size: 12px; }
 
+/* --- First-discovery celebration --------------------------------------- */
+
+.discovery-celebration {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 14px 10px 52px;
+  overflow: hidden;
+  border: 1px solid #d7c478;
+  border-radius: var(--radius-sm);
+  background: #fff9df;
+  color: #715424;
+}
+
+.discovery-celebration__text { font-family: var(--serif); font-size: 16px; animation: discovery-text .5s ease-out both; }
+.discovery-celebration__burst { position: absolute; left: 25px; top: 21px; width: 1px; height: 1px; }
+.discovery-celebration__burst i { position: absolute; display: block; width: 5px; height: 5px; border-radius: 50%; background: #edb749; animation: discovery-spark .75s cubic-bezier(.18,.75,.25,1) both; }
+.discovery-celebration__burst i:nth-child(1) { --x: -18px; --y: -14px; background: #d8784a; }
+.discovery-celebration__burst i:nth-child(2) { --x: 1px; --y: -23px; animation-delay: .03s; }
+.discovery-celebration__burst i:nth-child(3) { --x: 18px; --y: -12px; background: #5b9d80; animation-delay: .06s; }
+.discovery-celebration__burst i:nth-child(4) { --x: 19px; --y: 12px; animation-delay: .02s; }
+.discovery-celebration__burst i:nth-child(5) { --x: -2px; --y: 20px; background: #5b9d80; animation-delay: .08s; }
+.discovery-celebration__burst i:nth-child(6) { --x: -19px; --y: 12px; background: #d8784a; animation-delay: .04s; }
+
+@keyframes discovery-spark { from { transform: translate(0, 0) scale(0); opacity: 0; } 45% { opacity: 1; } to { transform: translate(var(--x), var(--y)) scale(1); opacity: 0; } }
+@keyframes discovery-text { from { transform: translateY(5px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .discovery-celebration__text, .discovery-celebration__burst i { animation: none; }
+}
+
 /* --- Banners ------------------------------------------------------------ */
 
 .banner {
@@ -1244,6 +1308,7 @@ h3 {
   background: var(--paper);
   padding-bottom: env(safe-area-inset-bottom);
   z-index: 500;
+  box-shadow: 0 -5px 16px rgba(44, 35, 23, .045);
 }
 
 .tab {
@@ -1263,8 +1328,13 @@ h3 {
 }
 
 .tab__icon {
-  font-size: 17px;
+  position: relative;
+  width: 20px;
+  height: 20px;
   line-height: 1;
+}
+
+.tab__icon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
 }
 
 .tab__label {
@@ -1276,6 +1346,8 @@ h3 {
 .tab--on {
   color: var(--green);
 }
+
+.tab--on .tab__icon::after { content: ""; position: absolute; bottom: -4px; left: 50%; width: 4px; height: 4px; border-radius: 50%; background: var(--amber); transform: translateX(-50%); }
 
 /* --- Modal sheet (tap the hero numeral to type a value) ----------------- */
 
@@ -1530,6 +1602,8 @@ h3 {
   width: 100%;
 }
 
+.time-slider { position: relative; }
+
 /* Reset UA chrome on both engines; the track/thumb are rebuilt below. */
 .time-slider__input {
   -webkit-appearance: none;
@@ -1569,8 +1643,8 @@ h3 {
   height: 28px;
   margin-top: -11px;
   border-radius: 50%;
-  background: var(--green);
-  border: 3px solid var(--parchment);
+  background: var(--parchment);
+  border: 3px solid var(--green);
   box-shadow: 0 2px 6px rgba(27, 56, 43, 0.28);
   cursor: pointer;
 }
@@ -1579,8 +1653,8 @@ h3 {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--green);
-  border: 3px solid var(--parchment);
+  background: var(--parchment);
+  border: 3px solid var(--green);
   box-shadow: 0 2px 6px rgba(27, 56, 43, 0.28);
   cursor: pointer;
 }
@@ -1600,3 +1674,11 @@ h3 {
   display: flex;
   justify-content: space-between;
 }
+
+.time-slider__scale .overline { font-size: 9px; font-weight: 500; color: var(--ink-warm); }
+.time-slider__ticks { position: absolute; top: 19px; right: 0; left: 0; height: 7px; pointer-events: none; }
+.time-slider__ticks span { position: absolute; width: 2px; height: 7px; border-radius: 2px; background: rgba(253, 252, 249, .8); transform: translateX(-1px); }
+
+.time-home__footer { gap: 9px; padding: 16px 24px max(18px, env(safe-area-inset-bottom)); border: 0; background: var(--paper); }
+.time-home__footer .btn--link { align-self: center; min-height: 32px; color: var(--ink-warm); text-decoration: none; }
+.time-home__footer .btn--link span { color: var(--amber); font-size: 14px; }

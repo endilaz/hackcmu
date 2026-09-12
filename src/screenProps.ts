@@ -69,6 +69,8 @@ export type SummaryScreenProps = {
   destination: Destination | undefined;
   /** True when opened from History - swaps the footer for a Back button. */
   readOnly?: boolean;
+  /** True only immediately after arriving at a destination for the first time. */
+  isNewDiscovery?: boolean;
   onWalkAgain?: () => void;
   onViewHistory?: () => void;
   onBack?: () => void;
