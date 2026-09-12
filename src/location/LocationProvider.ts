@@ -54,10 +54,10 @@ export interface SimulatedProvider extends LocationProvider {
   /** Teleport the simulated walker. Used by "Apply" and by resume-on-reload. */
   setPosition(pos: LatLng): void;
   /**
-   * Start auto-walking toward a destination, generating a wobbly path from the
-   * current simulated position. Pass null to go back to idle behaviour.
+   * Start auto-walking toward a destination. A routed path may be supplied;
+   * otherwise the simulator generates its original demo path. Pass null to idle.
    */
-  walkTo(destination: LatLng | null): void;
+  walkTo(destination: LatLng | null, route?: LatLng[]): void;
   pause(): void;
   resume(): void;
   isPaused(): boolean;

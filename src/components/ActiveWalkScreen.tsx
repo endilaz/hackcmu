@@ -15,16 +15,11 @@ export default function ActiveWalkScreen({
   user,
   elapsedMs,
   remainingMeters,
+  remainingRoute,
   onEndEarly,
 }: ActiveWalkScreenProps) {
-  const [recenterNonce, setRecenterNonce] = useState(0);
-  const [showRecenter, setShowRecenter] = useState(false);
+  const [mapOffCenter, setMapOffCenter] = useState(false);
   const [confirming, setConfirming] = useState(false);
-
-  function handleRecenter() {
-    setRecenterNonce((n) => n + 1);
-    setShowRecenter(false);
-  }
 
   return (
     <div className="screen screen--map">
@@ -34,24 +29,18 @@ export default function ActiveWalkScreen({
           user={user}
           destination={{ lat: destination.lat, lng: destination.lng, name: destination.name }}
           trail={walk.trail}
-          dashedToDestination
-          recenterNonce={recenterNonce}
-          onUserInteract={() => setShowRecenter(true)}
+          route={remainingRoute}
+          onUserInteract={() => setMapOffCenter(true)}
+          onRecenter={() => setMapOffCenter(false)}
         />
         <div className="map-pill">
           <span aria-hidden="true">→</span>
           <span className="map-pill__text">Heading to {destination.name}</span>
         </div>
-        {showRecenter && (
-          <button type="button" className="map-btn" onClick={handleRecenter}>
-            Recenter
-          </button>
-        )}
+        {mapOffCenter && <span className="map-recenter-hint">Double-tap to recenter</span>}
       </div>
 
       <div className="sheet">
-        <div className="sheet__handle" />
-
         <div className="facts">
           <div className="fact">
             <span className="fact__value">{formatDistance(walk.distanceMeters)}</span>

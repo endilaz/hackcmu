@@ -9,6 +9,7 @@ import { DESTINATIONS } from "./data/destinations";
 import { computeBadges, computeStats } from "./lib/achievements";
 import { buildLeaderboard } from "./lib/social";
 import { haversineMeters } from "./lib/geo";
+import { progressAlongRoute } from "./lib/directions";
 import { pickDestination, type Suggestion } from "./lib/selection";
 import {
   loadSim,
@@ -29,6 +30,7 @@ import { RealLocationProvider } from "./location/RealLocationProvider";
 import { SimulatedLocationProvider } from "./location/SimulatedLocationProvider";
 import type { Tab } from "./screenProps";
 import type { AppState, Destination, EchoMood, EchoVisibility, LatLng, Walk } from "./types";
+import { useWalkingRoute } from "./useWalkingRoute";
 
 export type Screen =
   | "time"
@@ -143,6 +145,18 @@ export function useWalkMachine() {
   const activeDestination = appState.activeWalk
     ? destinationsById[appState.activeWalk.destinationId]
     : undefined;
+
+  const routeDestination = screen === "suggestion"
+    ? suggestion?.destination ?? null
+    : screen === "active"
+      ? activeDestination ?? null
+      : null;
+  const walkingRouteState = useWalkingRoute(user, routeDestination);
+  const walkingRoute = walkingRouteState.route;
+  const routeProgress = useMemo(
+    () => walkingRoute && user ? progressAlongRoute(walkingRoute, user) : null,
+    [walkingRoute, user],
+  );
 
   // --- persistence helpers -------------------------------------------------
 
@@ -337,7 +351,9 @@ export function useWalkMachine() {
       endedAt: null,
       status: "active",
       freeMinutes: minutes,
-      estimatedMinutes: suggestion.oneWayMinutes,
+      estimatedMinutes: walkingRoute
+        ? Math.round(walkingRoute.durationSeconds / 60)
+        : suggestion.oneWayMinutes,
       trail: [],
       distanceMeters: 0,
       arrived: false,
@@ -346,14 +362,14 @@ export function useWalkMachine() {
     commit({ ...appStateRef.current, activeWalk: walk });
     if (simEnabled) {
       simRef.current?.setPosition(user);
-      simRef.current?.walkTo(dest);
+      simRef.current?.walkTo(dest, walkingRoute?.geometry);
       simRef.current?.resume();
       setSimPaused(false);
     }
     setElapsedMs(0);
     setProviderRunning(true);
     setScreen("active");
-  }, [commit, minutes, simEnabled, suggestion, user]);
+  }, [commit, minutes, simEnabled, suggestion, user, walkingRoute]);
 
   const endWalkEarly = useCallback(() => finishWalk(false), [finishWalk]);
 
@@ -439,14 +455,14 @@ export function useWalkMachine() {
       const walk = appStateRef.current.activeWalk;
       if (on && walk) {
         const dest = destinationsById[walk.destinationId];
-        if (dest) simRef.current?.walkTo(dest);
+        if (dest) simRef.current?.walkTo(dest, walkingRoute?.geometry);
       }
       if (on) {
         simRef.current?.resume();
         setSimPaused(false);
       }
     },
-    [destinationsById, user],
+    [destinationsById, user, walkingRoute],
   );
 
   const updateSimSettings = useCallback((patch: Partial<SimSettings>) => {
@@ -482,7 +498,8 @@ export function useWalkMachine() {
   // --- derived -------------------------------------------------------------
 
   const remainingMeters =
-    user && activeDestination ? haversineMeters(user, activeDestination) : 0;
+    routeProgress?.remainingMeters ??
+    (user && activeDestination ? haversineMeters(user, activeDestination) : 0);
 
   const detailWalk = detailWalkId
     ? (appState.walks.find((w) => w.id === detailWalkId) ?? null)
@@ -509,6 +526,11 @@ export function useWalkMachine() {
     minutes,
     setMinutes,
     suggestion,
+    walkingRoute,
+    routeLoading: walkingRouteState.loading,
+    routeError: walkingRouteState.error,
+    remainingRoute: routeProgress?.geometry ??
+      (user && activeDestination ? [user, activeDestination] : []),
     user,
     locating,
     slowFix,

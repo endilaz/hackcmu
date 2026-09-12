@@ -23,6 +23,8 @@ export default function App() {
         return (
           <SuggestionScreen
             suggestion={m.suggestion}
+            walkingRoute={m.walkingRoute}
+            routeLoading={m.routeLoading}
             user={m.user}
             freeMinutes={m.minutes}
             onStart={m.startWalk}
@@ -40,6 +42,7 @@ export default function App() {
             user={m.user}
             elapsedMs={m.elapsedMs}
             remainingMeters={m.remainingMeters}
+            remainingRoute={m.remainingRoute}
             onEndEarly={m.endWalkEarly}
           />
         );

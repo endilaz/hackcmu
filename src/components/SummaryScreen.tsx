@@ -75,7 +75,6 @@ export default function SummaryScreen({
           }
           trail={walk.trail}
           startPoint={firstTrailPoint}
-          dashedToDestination={false}
           echoes={echoes}
         />
 
