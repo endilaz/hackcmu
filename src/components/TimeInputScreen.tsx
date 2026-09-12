@@ -69,12 +69,7 @@ export default function TimeInputScreen({
 
         <section className="time-card time-card--minutes">
           <div className="hero">
-            <div
-              className="hero__dial"
-              style={{ "--time-dial": `${sliderPct * 3.6}deg` } as CSSProperties}
-            >
-              <span className="hero__value">{minutes}</span>
-            </div>
+            <span className="hero__value">{minutes}</span>
             <span className="overline">Minutes free</span>
           </div>
 

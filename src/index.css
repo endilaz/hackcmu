@@ -455,15 +455,14 @@ h3 {
 .time-card--discovery .progress__head strong { display: block; margin-top: 3px; color: var(--green); font-family: var(--serif); font-size: 20px; font-weight: 500; }
 .discovery-remaining { padding: 5px 8px; border-radius: var(--pill); background: #f4ead7; color: var(--amber); font-size: 11px; font-weight: 700; }
 
-.time-card--minutes { padding: 18px 18px 16px; background: radial-gradient(circle at 50% 38%, #ebf1e7 0, #f9faf5 45%, var(--parchment) 74%); }
-.hero__dial { display: grid; place-items: center; width: 154px; height: 154px; border: 1px solid rgba(27, 56, 43, .16); border-radius: 50%; background: conic-gradient(var(--green) 0deg var(--time-dial, 0deg), rgba(27, 56, 43, .1) var(--time-dial, 0deg) 360deg); box-shadow: inset 0 0 0 7px #f8faf4, 0 5px 18px rgba(27, 56, 43, .08); }
+.time-card--minutes { padding: 24px 18px 16px; background: radial-gradient(circle at 50% 38%, #ebf1e7 0, #f9faf5 45%, var(--parchment) 74%); }
 
 .hero__value {
-  font-family: var(--serif);
-  font-size: 92px;
-  font-weight: 300;
-  line-height: 0.92;
-  letter-spacing: -0.03em;
+  font-family: var(--sans);
+  font-size: 72px;
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.06em;
   color: var(--green);
   font-variant-numeric: lining-nums tabular-nums;
   display: flex;
@@ -1570,7 +1569,7 @@ h3 {
     font-size: 26px;
   }
   .hero__value {
-    font-size: 92px;
+    font-size: 66px;
   }
   .fact__value {
     font-size: 21px;
@@ -1586,7 +1585,7 @@ h3 {
 /* Short viewports: the hero is the first thing that should give up height. */
 @media (max-height: 700px) {
   .hero__value {
-    font-size: 86px;
+    font-size: 64px;
   }
   .screen__pad {
     gap: 16px;
