@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import type { TimeInputScreenProps } from "../screenProps";
 import { MIN_FREE_MINUTES, MAX_FREE_MINUTES, QUICK_PICK_MINUTES } from "../constants";
+import RippleButton from "./RippleButton";
 
 /**
  * Home. The free-minutes value is the hero: a 116px serif numeral, not a form
@@ -99,9 +100,9 @@ export default function TimeInputScreen({
               <span>Still looking for you…</span>
             </div>
             {!simEnabled && (
-              <button type="button" className="btn btn--secondary" onClick={onUseSimulator}>
+              <RippleButton type="button" className="btn btn--secondary" onClick={onUseSimulator}>
                 Use simulated location
-              </button>
+              </RippleButton>
             )}
           </>
         )}
@@ -116,9 +117,9 @@ export default function TimeInputScreen({
               </span>
             </div>
             {!simEnabled && (
-              <button type="button" className="btn btn--secondary" onClick={onUseSimulator}>
+              <RippleButton type="button" className="btn btn--secondary" onClick={onUseSimulator}>
                 Use simulated location
-              </button>
+              </RippleButton>
             )}
           </>
         )}
@@ -142,7 +143,7 @@ export default function TimeInputScreen({
       </div>
 
       <div className="screen__footer">
-        <button
+        <RippleButton
           type="button"
           className="btn btn--primary"
           onClick={onFind}
@@ -150,10 +151,10 @@ export default function TimeInputScreen({
         >
           {locating ? "Finding you…" : "Find me a walk"}
           {!locating && <span aria-hidden="true">→</span>}
-        </button>
-        <button type="button" className="btn btn--link" onClick={onOpenCalendar}>
+        </RippleButton>
+        <RippleButton type="button" className="btn btn--link" onClick={onOpenCalendar}>
           Import my calendar
-        </button>
+        </RippleButton>
       </div>
     </div>
   );

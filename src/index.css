@@ -27,6 +27,7 @@
   --green: #1b382b;
   --green-deep: #042217;
   --green-tint: rgba(27, 56, 43, 0.06);
+  --green-hover: #244a39;
   --green-pale: #dfe9e2;
   --amber: #8a5a36;
   --amber-bg: #f7f2e7;
@@ -219,6 +220,8 @@ h3 {
 /* --- Buttons ------------------------------------------------------------ */
 
 .btn {
+  position: relative;
+  overflow: hidden;
   min-height: var(--tap);
   padding: 0 20px;
   border-radius: var(--pill);
@@ -232,17 +235,71 @@ h3 {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background 0.12s ease, opacity 0.12s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.12s ease,
+    opacity 0.12s ease;
   width: 100%;
 }
 
-.btn:active {
-  opacity: 0.86;
+/*
+ * Hover is gated behind a real pointer. On touch, :hover latches after a tap
+ * and the button stays lit until you press something else - so phones get the
+ * ripple and the press state, and nothing else.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .btn--primary:hover:not(:disabled) {
+    background-color: var(--green-hover);
+  }
+
+  /* Outlined buttons resolve from a faint hairline to a committed edge with a
+     translucent fill - the move the original Framer component made on hover,
+     in our ink instead of its mint. */
+  .btn--secondary:hover:not(:disabled) {
+    background-color: var(--green-tint);
+    border-color: var(--green);
+  }
+
+  .btn--danger:hover:not(:disabled) {
+    background-color: var(--danger-bg);
+    border-color: var(--danger);
+  }
+
+  .btn--link:hover:not(:disabled) {
+    color: var(--ink);
+  }
+
+  .btn--icon:hover:not(:disabled) {
+    background-color: var(--green-tint);
+  }
+}
+
+/* Press reads as a small physical give. Transform rather than opacity, so the
+   ripple underneath keeps its own alpha. */
+.btn:active:not(:disabled) {
+  transform: scale(0.978);
+}
+
+.btn--link:active:not(:disabled),
+.btn--icon:active:not(:disabled) {
+  transform: scale(0.94);
 }
 
 .btn:disabled {
   opacity: 0.45;
   cursor: default;
+}
+
+/* A press that only moves 2% is invisible to some people; keep the ripple and
+   the colour change, drop the motion. */
+@media (prefers-reduced-motion: reduce) {
+  .btn:active:not(:disabled),
+  .btn--link:active:not(:disabled),
+  .btn--icon:active:not(:disabled) {
+    transform: none;
+  }
 }
 
 .btn--primary {
@@ -293,6 +350,76 @@ h3 {
 
 .btn-row > .btn {
   flex: 1 1 0;
+}
+
+/* --- Touch ripple -------------------------------------------------------
+ *
+ * Material-style press feedback on .btn. Two keyframes rather than one so a
+ * ripple can hold while the button is held: `ripple-in` runs once on mount and
+ * stops at full opacity; on release `ripple-out` is layered on top and, being
+ * the later animation, wins for opacity while the disc carries on growing.
+ *
+ * The disc paints in currentColor and is dropped to a low alpha, so every
+ * button variant gets a ripple in its own ink for free.
+ */
+
+.ripple-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  transform: scale(0);
+  will-change: transform, opacity;
+  animation: ripple-in 550ms cubic-bezier(0.2, 0.6, 0.35, 1) forwards;
+}
+
+.ripple--out {
+  animation:
+    ripple-in 550ms cubic-bezier(0.2, 0.6, 0.35, 1) forwards,
+    ripple-out 420ms ease-out forwards;
+}
+
+@keyframes ripple-in {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.26;
+  }
+  to {
+    transform: scale(1);
+    opacity: 0.26;
+  }
+}
+
+/* No `from`: the implicit start is the underlying value, i.e. whatever
+   ripple-in has reached, so releasing mid-grow fades from where it got to. */
+@keyframes ripple-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Respect a reduced-motion preference: keep a brief, static press tint
+   instead of an expanding disc. */
+@media (prefers-reduced-motion: reduce) {
+  .ripple {
+    animation: none;
+    opacity: 0.12;
+    transform: scale(1);
+  }
+  .ripple--out {
+    animation: ripple-out 120ms linear forwards;
+  }
 }
 
 /* --- Hero numeral ------------------------------------------------------- */
@@ -346,7 +473,10 @@ h3 {
   color: var(--ink);
   font-family: inherit;
   cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.12s ease;
 }
 
 .tile__value {
@@ -476,6 +606,7 @@ h3 {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease;
 }
 
 .seg__btn--on {
@@ -509,6 +640,7 @@ h3 {
   color: var(--ink);
   cursor: pointer;
   min-height: var(--tap);
+  transition: background-color 0.18s ease;
 }
 
 .row--static {
@@ -771,6 +903,11 @@ h3 {
   font-family: inherit;
   cursor: pointer;
   flex: 1 1 auto;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.12s ease;
 }
 
 .chip--on {
@@ -932,6 +1069,7 @@ h3 {
   box-shadow: 0 2px 10px rgba(27, 56, 43, 0.08);
   cursor: pointer;
   width: auto;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
 }
 
 /* --- Walk sheet (paper floating over the map) --------------------------- */
@@ -987,6 +1125,7 @@ h3 {
   font-family: inherit;
   color: var(--ink-faint);
   cursor: pointer;
+  transition: color 0.18s ease, background-color 0.18s ease;
 }
 
 .tab__icon {
@@ -1155,6 +1294,64 @@ h3 {
 .sim-grid {
   display: flex;
   gap: 6px;
+}
+
+/*
+ * Hover for the controls that aren't .btn. Without these the time tiles, the
+ * List/Map toggle and the tab bar sit dead on desktop while the buttons animate,
+ * which reads as breakage rather than restraint.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .tile:hover:not(.tile--on) {
+    border-color: rgba(27, 56, 43, 0.4);
+    background-color: var(--green-tint);
+  }
+
+  .tile--on:hover {
+    background-color: var(--green-hover);
+    border-color: var(--green-hover);
+  }
+
+  .chip:hover:not(.chip--on) {
+    border-color: rgba(27, 56, 43, 0.4);
+    background-color: var(--green-tint);
+    color: var(--green);
+  }
+
+  .chip--on:hover {
+    background-color: var(--green-hover);
+    border-color: var(--green-hover);
+  }
+
+  .seg__btn:hover:not(.seg__btn--on) {
+    color: var(--green);
+    background-color: var(--green-tint);
+  }
+
+  .tab:hover:not(.tab--on) {
+    color: var(--ink-soft);
+  }
+
+  .row:not(.row--static):hover {
+    background-color: var(--green-tint);
+  }
+
+  .map-btn:hover {
+    background-color: var(--paper);
+    border-color: rgba(27, 56, 43, 0.35);
+  }
+}
+
+.tile:active:not(:disabled),
+.chip:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile:active:not(:disabled),
+  .chip:active:not(:disabled) {
+    transform: none;
+  }
 }
 
 /* --- Narrow phones ------------------------------------------------------ */

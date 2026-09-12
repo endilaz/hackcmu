@@ -1,6 +1,7 @@
 import MapView from "./MapView";
 import type { SuggestionScreenProps } from "../screenProps";
 import { ROUND_TRIP } from "../constants";
+import RippleButton from "./RippleButton";
 
 /**
  * The payoff: one place, one decision. The map is the top of the screen and
@@ -76,17 +77,17 @@ export default function SuggestionScreen({
           )}
         </div>
 
-        <button type="button" className="btn btn--primary" onClick={onStart}>
+        <RippleButton type="button" className="btn btn--primary" onClick={onStart}>
           Start walk
           <span aria-hidden="true">→</span>
-        </button>
+        </RippleButton>
         <div className="btn-row">
-          <button type="button" className="btn btn--secondary" onClick={onReroll}>
+          <RippleButton type="button" className="btn btn--secondary" onClick={onReroll}>
             Show me another
-          </button>
-          <button type="button" className="btn btn--secondary" onClick={onChangeTime}>
+          </RippleButton>
+          <RippleButton type="button" className="btn btn--secondary" onClick={onChangeTime}>
             Change time
-          </button>
+          </RippleButton>
         </div>
       </div>
     </div>

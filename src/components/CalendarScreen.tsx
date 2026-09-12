@@ -3,6 +3,7 @@ import type { ChangeEvent } from "react";
 import type { CalendarScreenProps } from "../screenProps";
 import type { Gap } from "../types";
 import { parseIcs, findGaps } from "../lib/ics";
+import RippleButton from "./RippleButton";
 
 type Status =
   | { kind: "idle" }
@@ -72,9 +73,9 @@ export default function CalendarScreen({ onUseGap, onBack }: CalendarScreenProps
   return (
     <div className="screen">
       <div className="screen__pad">
-        <button type="button" className="btn btn--icon" onClick={onBack} aria-label="Back">
+        <RippleButton type="button" className="btn btn--icon" onClick={onBack} aria-label="Back">
           ←
-        </button>
+        </RippleButton>
 
         <div>
           <h1>Import your calendar</h1>

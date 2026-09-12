@@ -1,6 +1,7 @@
 import type { SummaryScreenProps } from "../screenProps";
 import { formatDistance, formatDuration, formatPace } from "../lib/geo";
 import MapView from "./MapView";
+import RippleButton from "./RippleButton";
 
 const startedAtFormatter = new Intl.DateTimeFormat(undefined, {
   month: "short",
@@ -33,9 +34,9 @@ export default function SummaryScreen({
     <div className="screen">
       <div className="screen__pad screen__pad--fill">
         {readOnly && onBack && (
-          <button type="button" className="btn btn--icon" onClick={onBack} aria-label="Back">
+          <RippleButton type="button" className="btn btn--icon" onClick={onBack} aria-label="Back">
             ←
-          </button>
+          </RippleButton>
         )}
 
         <div>
@@ -92,14 +93,14 @@ export default function SummaryScreen({
       {!readOnly && (
         <div className="screen__footer">
           {onWalkAgain && (
-            <button type="button" className="btn btn--primary" onClick={onWalkAgain}>
+            <RippleButton type="button" className="btn btn--primary" onClick={onWalkAgain}>
               Walk again
-            </button>
+            </RippleButton>
           )}
           {onViewHistory && (
-            <button type="button" className="btn btn--secondary" onClick={onViewHistory}>
+            <RippleButton type="button" className="btn btn--secondary" onClick={onViewHistory}>
               View history
-            </button>
+            </RippleButton>
           )}
         </div>
       )}

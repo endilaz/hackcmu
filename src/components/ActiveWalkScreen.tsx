@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { ActiveWalkScreenProps } from "../screenProps";
 import { formatDistance, formatDuration } from "../lib/geo";
 import MapView from "./MapView";
+import RippleButton from "./RippleButton";
 
 /**
  * A walk in progress: the map is the content, and the paper sheet floats over
@@ -72,26 +73,26 @@ export default function ActiveWalkScreen({
               End this walk?
             </p>
             <div className="btn-row">
-              <button
+              <RippleButton
                 type="button"
                 className="btn btn--secondary"
                 onClick={() => setConfirming(false)}
               >
                 Keep walking
-              </button>
-              <button type="button" className="btn btn--danger" onClick={onEndEarly}>
+              </RippleButton>
+              <RippleButton type="button" className="btn btn--danger" onClick={onEndEarly}>
                 Yes, end it
-              </button>
+              </RippleButton>
             </div>
           </>
         ) : (
-          <button
+          <RippleButton
             type="button"
             className="btn btn--danger"
             onClick={() => setConfirming(true)}
           >
             End walk early
-          </button>
+          </RippleButton>
         )}
       </div>
     </div>
