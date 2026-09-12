@@ -29,6 +29,13 @@ const DEST_ICON = L.divIcon({
   iconAnchor: [9, 9],
 });
 
+const ECHO_ICON = L.divIcon({
+  className: "echo-bloom",
+  html: "✦",
+  iconSize: [22, 22],
+  iconAnchor: [11, 11],
+});
+
 /**
  * The map half of History: every recorded GPS trail as a heat layer, with pins
  * on the places actually reached. Renders only the map - History owns the
@@ -38,11 +45,13 @@ export default function HeatmapScreen({
   walks,
   destinations,
   visitedDestinationIds,
+  echoes,
 }: HeatmapScreenProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const heatLayerRef = useRef<HeatLayer | null>(null);
   const destMarkersRef = useRef<L.Marker[]>([]);
+  const echoMarkersRef = useRef<L.Marker[]>([]);
   const hasFitRef = useRef(false);
 
   const heatPoints = useMemo<HeatPoint[]>(
@@ -96,6 +105,7 @@ export default function HeatmapScreen({
       mapRef.current = null;
       heatLayerRef.current = null;
       destMarkersRef.current = [];
+      echoMarkersRef.current = [];
       hasFitRef.current = false;
     };
   }, []);
@@ -128,6 +138,13 @@ export default function HeatmapScreen({
         .bindTooltip(d.name, { direction: "top", offset: [0, -12] }),
     );
 
+    for (const marker of echoMarkersRef.current) map.removeLayer(marker);
+    echoMarkersRef.current = echoes.map((echo) =>
+      L.marker([echo.lat, echo.lng], { icon: ECHO_ICON, keyboard: false })
+        .addTo(map)
+        .bindTooltip(`Echo · ${echo.mood}`, { direction: "top", offset: [0, -12] }),
+    );
+
     // Fit bounds once: prefer the actual trail, falling back to the
     // destinations so the map still shows the right neighbourhood instead of
     // the whole world when there's no trail data yet.
@@ -142,7 +159,7 @@ export default function HeatmapScreen({
         hasFitRef.current = true;
       }
     }
-  }, [heatPoints, visitedDestinations, destinations]);
+  }, [echoes, heatPoints, visitedDestinations, destinations]);
 
   return (
     <div className="map-wrap">

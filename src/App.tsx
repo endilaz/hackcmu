@@ -51,6 +51,8 @@ export default function App() {
             walk={m.summaryWalk}
             destination={m.destinationsById[m.summaryWalk.destinationId]}
             isNewDiscovery={m.isNewDiscovery}
+            echoes={m.appState.echoes.filter((echo) => echo.walkId === m.summaryWalk?.id)}
+            onCreateEcho={m.createEcho}
             onWalkAgain={m.goTime}
             onViewHistory={m.goHistory}
           />
@@ -63,6 +65,7 @@ export default function App() {
             walk={m.detailWalk}
             destination={m.destinationsById[m.detailWalk.destinationId]}
             readOnly
+            echoes={m.appState.echoes.filter((echo) => echo.walkId === m.detailWalk?.id)}
             onBack={m.goBackFromHistory}
           />
         );
@@ -93,6 +96,7 @@ export default function App() {
             totalDestinations={m.totalDestinations}
             visitedCount={m.visitedCount}
             totalDistanceMeters={m.totalDistanceMeters}
+            echoes={m.appState.echoes}
             onSelectWalk={m.selectWalk}
           />
         );

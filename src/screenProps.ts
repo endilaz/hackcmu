@@ -15,6 +15,9 @@ import type {
   LeaderboardRow,
   Stats,
   Walk,
+  Echo,
+  EchoMood,
+  EchoVisibility,
 } from "./types";
 import type { Suggestion } from "./lib/selection";
 import type { LocationError, SimSettings } from "./location/LocationProvider";
@@ -71,6 +74,8 @@ export type SummaryScreenProps = {
   readOnly?: boolean;
   /** True only immediately after arriving at a destination for the first time. */
   isNewDiscovery?: boolean;
+  echoes?: Echo[];
+  onCreateEcho?: (input: { text: string; photo: string | null; mood: EchoMood; visibility: EchoVisibility }) => void;
   onWalkAgain?: () => void;
   onViewHistory?: () => void;
   onBack?: () => void;
@@ -86,6 +91,7 @@ export type HistoryScreenProps = {
   totalDestinations: number;
   visitedCount: number;
   totalDistanceMeters: number;
+  echoes: Echo[];
   onSelectWalk: (walkId: string) => void;
 };
 
@@ -107,6 +113,7 @@ export type HeatmapScreenProps = {
   walks: Walk[];
   destinations: Destination[];
   visitedDestinationIds: string[];
+  echoes: Echo[];
 };
 
 export type AchievementsScreenProps = {

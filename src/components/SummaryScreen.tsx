@@ -3,6 +3,7 @@ import { formatDistance, formatDuration, formatPace } from "../lib/geo";
 import MapView from "./MapView";
 import RippleButton from "./RippleButton";
 import WalkBadge from "./WalkBadge";
+import EchoComposer from "./EchoComposer";
 
 const startedAtFormatter = new Intl.DateTimeFormat(undefined, {
   month: "short",
@@ -26,6 +27,8 @@ export default function SummaryScreen({
   onWalkAgain,
   onViewHistory,
   onBack,
+  echoes = [],
+  onCreateEcho,
 }: SummaryScreenProps) {
   const destinationName = destination?.name ?? "your destination";
   const elapsedMs = walk.endedAt !== null ? walk.endedAt - walk.startedAt : 0;
@@ -73,6 +76,7 @@ export default function SummaryScreen({
           trail={walk.trail}
           startPoint={firstTrailPoint}
           dashedToDestination={false}
+          echoes={echoes}
         />
 
         <p className="faint">
@@ -108,6 +112,8 @@ export default function SummaryScreen({
             </div>
           </div>
         )}
+
+        {!readOnly && walk.arrived && onCreateEcho && echoes.length === 0 && <EchoComposer onSave={onCreateEcho} />}
 
         <div className="screen__spacer" />
       </div>
