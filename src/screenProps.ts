@@ -7,7 +7,15 @@
  * callbacks and own no app state beyond local form/UI state.
  */
 
-import type { Destination, LatLng, Walk } from "./types";
+import type {
+  Badge,
+  Destination,
+  Friend,
+  LatLng,
+  LeaderboardRow,
+  Stats,
+  Walk,
+} from "./types";
 import type { Suggestion } from "./lib/selection";
 import type { LocationError, SimSettings } from "./location/LocationProvider";
 
@@ -24,6 +32,8 @@ export type TimeInputScreenProps = {
   /** Shown when there's an error or a slow fix; turns the simulator on. */
   onUseSimulator: () => void;
   simEnabled: boolean;
+  /** Opens the .ics import screen instead of typing minutes by hand. */
+  onOpenCalendar: () => void;
 };
 
 export type SuggestionScreenProps = {
@@ -66,6 +76,9 @@ export type HistoryScreenProps = {
   totalDistanceMeters: number;
   onSelectWalk: (walkId: string) => void;
   onBack: () => void;
+  onOpenHeatmap: () => void;
+  onOpenAchievements: () => void;
+  onOpenFriends: () => void;
 };
 
 export type SimulatorPanelProps = {
@@ -79,4 +92,30 @@ export type SimulatorPanelProps = {
   walkActive: boolean;
   onApplyStart: (lat: number, lng: number) => void;
   onJumpToArrival: () => void;
+};
+
+export type HeatmapScreenProps = {
+  /** Every recorded walk; their trails are the heat source. */
+  walks: Walk[];
+  destinations: Destination[];
+  visitedDestinationIds: string[];
+  onBack: () => void;
+};
+
+export type AchievementsScreenProps = {
+  stats: Stats;
+  badges: Badge[];
+  onBack: () => void;
+};
+
+export type CalendarScreenProps = {
+  /** Chosen gap length, in whole minutes; the machine takes it from here. */
+  onUseGap: (minutes: number) => void;
+  onBack: () => void;
+};
+
+export type FriendsScreenProps = {
+  rows: LeaderboardRow[];
+  friends: Friend[];
+  onBack: () => void;
 };

@@ -12,6 +12,7 @@ export default function TimeInputScreen({
   error,
   onUseSimulator,
   simEnabled,
+  onOpenCalendar,
 }: TimeInputScreenProps) {
   // Raw text lives locally so the user can freely clear/retype; only parsed,
   // in-range values are ever clamped, and only on blur (plan.md 9.1).
@@ -137,6 +138,9 @@ export default function TimeInputScreen({
           disabled={locating}
         >
           {locating ? "Finding you…" : "Find me a walk"}
+        </button>
+        <button type="button" className="btn btn--link" onClick={onOpenCalendar}>
+          Or import my calendar
         </button>
       </div>
     </div>

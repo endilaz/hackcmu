@@ -18,6 +18,9 @@ export default function HistoryScreen({
   totalDistanceMeters,
   onSelectWalk,
   onBack,
+  onOpenHeatmap,
+  onOpenAchievements,
+  onOpenFriends,
 }: HistoryScreenProps) {
   // Stored newest-last; display newest-first without mutating the prop array.
   const orderedWalks = [...walks].reverse();
@@ -30,6 +33,18 @@ export default function HistoryScreen({
         </button>
 
         <h1>History</h1>
+
+        <div className="btn-row">
+          <button type="button" className="btn btn--secondary" onClick={onOpenHeatmap}>
+            🔥 Heatmap
+          </button>
+          <button type="button" className="btn btn--secondary" onClick={onOpenAchievements}>
+            🏅 Progress
+          </button>
+          <button type="button" className="btn btn--secondary" onClick={onOpenFriends}>
+            👥 Friends
+          </button>
+        </div>
 
         <div className="stats">
           <div className="stat">

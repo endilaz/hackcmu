@@ -159,6 +159,28 @@ All 16 seeded destinations were verified against OpenStreetMap Nominatim on
 
 ---
 
+## Beyond the core loop
+
+Reachable from **History**, plus calendar import from the home screen:
+
+- **Heatmap** — every GPS trail you've recorded, drawn as a heat layer over the map,
+  with pins on the places you've actually reached. Your exploration footprint.
+- **Progress** — points, an 8-badge set, and daily streaks, all computed from walk
+  history in `src/lib/achievements.ts`. Streaks use *local* calendar days, not UTC.
+- **Friends** — a leaderboard your real stats compete on.
+  **The friends are seeded demo data.** Spare Walk has no server, so there is nobody
+  to sync with; the screen says so in a banner that can't be dismissed. Your own
+  numbers on it are real.
+- **Calendar import** — drop in an `.ics` export (Google Calendar: Settings →
+  Import/Export → Export; Apple Calendar: File → Export) and the app finds today's
+  gaps between commitments and offers them as one-tap time choices. Parsed entirely
+  in the browser: nothing is uploaded, no OAuth, no API key, works offline.
+  Recurring events and real timezone conversion are not handled — `TZID` times are
+  read as local wall-clock, and all-day events are skipped so they don't swallow
+  the day.
+
+---
+
 ## How it's built
 
 - **Vite + React + TypeScript**, plain `leaflet` (not react-leaflet), plain CSS.
@@ -191,12 +213,9 @@ estimate, the exploration bias and the GPS noise filtering live.
 
 Deliberately out of scope for this build:
 
-- Heatmap of everywhere you've walked (walk history is already persisted for this)
-- Calendar sync instead of typing your free minutes
-- Friends, shared walks, leaderboards
-- Points, badges, streaks
 - Fitness-tracker and health-API integration; step counting; calories
 - Turn-by-turn walking directions (today's estimate is straight-line × a detour factor)
 - A live Places API instead of a curated destination list
-- Accounts and a backend, so history follows you between devices
+- Accounts and a backend, so friends and leaderboards become real rather than seeded
 - Resuming an in-progress walk after a page reload (an unfinished walk is discarded)
+- Real timezone handling and recurring events in calendar import

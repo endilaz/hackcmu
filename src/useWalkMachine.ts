@@ -4,7 +4,10 @@ import {
   MAX_FREE_MINUTES,
   MIN_FREE_MINUTES,
 } from "./constants";
+import { FRIENDS } from "./data/friends";
 import { DESTINATIONS } from "./data/destinations";
+import { computeBadges, computeStats } from "./lib/achievements";
+import { buildLeaderboard } from "./lib/social";
 import { haversineMeters } from "./lib/geo";
 import { pickDestination, type Suggestion } from "./lib/selection";
 import {
@@ -32,7 +35,11 @@ export type Screen =
   | "active"
   | "summary"
   | "history"
-  | "historyDetail";
+  | "historyDetail"
+  | "heatmap"
+  | "achievements"
+  | "calendar"
+  | "friends";
 
 function clampMinutes(m: number): number {
   if (!Number.isFinite(m)) return MIN_FREE_MINUTES;
@@ -265,8 +272,8 @@ export function useWalkMachine() {
 
   const setMinutes = useCallback((m: number) => setMinutesRaw(m), []);
 
-  const findWalk = useCallback(() => {
-    const m = clampMinutes(minutes);
+  const findWalk = useCallback((overrideMinutes?: number) => {
+    const m = clampMinutes(overrideMinutes ?? minutes);
     setMinutesRaw(m);
     setLocError(null);
     setSuggestion(null);
@@ -343,6 +350,20 @@ export function useWalkMachine() {
     setScreen(appStateRef.current.activeWalk ? "active" : "time");
   }, [detailWalkId]);
 
+  const goHeatmap = useCallback(() => setScreen("heatmap"), []);
+  const goAchievements = useCallback(() => setScreen("achievements"), []);
+  const goFriends = useCallback(() => setScreen("friends"), []);
+  const goCalendar = useCallback(() => setScreen("calendar"), []);
+
+  /** A gap picked from an imported calendar goes straight into a search. */
+  const useGap = useCallback(
+    (gapMinutes: number) => {
+      setMinutesRaw(clampMinutes(gapMinutes));
+      findWalk(gapMinutes);
+    },
+    [findWalk],
+  );
+
   const selectWalk = useCallback((walkId: string) => {
     setDetailWalkId(walkId);
     setScreen("historyDetail");
@@ -409,6 +430,16 @@ export function useWalkMachine() {
     ? (appState.walks.find((w) => w.id === detailWalkId) ?? null)
     : null;
 
+  const stats = useMemo(
+    () => computeStats(appState.walks, appState.visitedDestinationIds),
+    [appState.walks, appState.visitedDestinationIds],
+  );
+  const badges = useMemo(
+    () => computeBadges(appState.walks, stats),
+    [appState.walks, stats],
+  );
+  const leaderboard = useMemo(() => buildLeaderboard(FRIENDS, stats), [stats]);
+
   const totalDistanceMeters = appState.walks.reduce(
     (sum, w) => sum + w.distanceMeters,
     0,
@@ -430,6 +461,7 @@ export function useWalkMachine() {
     detailWalk,
     activeDestination,
     destinationsById,
+    destinations: DESTINATIONS,
     totalDestinations: DESTINATIONS.length,
     visitedCount: appState.visitedDestinationIds.length,
     totalDistanceMeters,
@@ -441,6 +473,15 @@ export function useWalkMachine() {
     goHistory,
     goBackFromHistory,
     selectWalk,
+    goHeatmap,
+    goAchievements,
+    goFriends,
+    goCalendar,
+    useGap,
+    stats,
+    badges,
+    leaderboard,
+    friends: FRIENDS,
     simEnabled,
     simSettings,
     simPaused,
