@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as L from "leaflet";
+import { echoPopupHtml } from "../lib/echoPopup";
 import { createHeatLayer, type HeatLayer, type HeatPoint } from "../lib/heat";
 import type { HeatmapScreenProps } from "../screenProps";
 
@@ -140,9 +141,14 @@ export default function HeatmapScreen({
 
     for (const marker of echoMarkersRef.current) map.removeLayer(marker);
     echoMarkersRef.current = echoes.map((echo) =>
-      L.marker([echo.lat, echo.lng], { icon: ECHO_ICON, keyboard: false })
+      L.marker([echo.lat, echo.lng], { icon: ECHO_ICON, keyboard: true, title: "View Echo" })
         .addTo(map)
-        .bindTooltip(`Echo · ${echo.mood}`, { direction: "top", offset: [0, -12] }),
+        .bindTooltip(`Echo · ${echo.mood}`, { direction: "top", offset: [0, -12] })
+        .bindPopup(echoPopupHtml(echo), {
+          className: "echo-popup-wrap",
+          maxWidth: 260,
+          offset: [0, -8],
+        }),
     );
 
     // Fit bounds once: prefer the actual trail, falling back to the

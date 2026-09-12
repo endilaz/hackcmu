@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import * as L from "leaflet";
+import { echoPopupHtml } from "../lib/echoPopup";
 import type { Echo, LatLng } from "../types";
 
 export type MapViewProps = {
@@ -56,8 +57,18 @@ function syncEchoes(map: L.Map, refs: Map<string, L.Marker>, echoes: Echo[]) {
   refs.forEach((marker, id) => { if (!wanted.has(id)) { map.removeLayer(marker); refs.delete(id); } });
   for (const echo of echoes) {
     const marker = refs.get(echo.id);
-    if (marker) marker.setLatLng([echo.lat, echo.lng]);
-    else refs.set(echo.id, L.marker([echo.lat, echo.lng], { icon: ECHO_ICON, keyboard: false }).addTo(map));
+    const popup = echoPopupHtml(echo);
+    if (marker) {
+      marker.setLatLng([echo.lat, echo.lng]);
+      marker.setPopupContent(popup);
+    } else {
+      refs.set(
+        echo.id,
+        L.marker([echo.lat, echo.lng], { icon: ECHO_ICON, keyboard: true, title: "View Echo" })
+          .addTo(map)
+          .bindPopup(popup, { className: "echo-popup-wrap", maxWidth: 260, offset: [0, -8] }),
+      );
+    }
   }
 }
 
