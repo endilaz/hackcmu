@@ -1,24 +1,2 @@
-/** Minimal types for leaflet.heat, which ships none. */
-declare module "leaflet.heat" {}
-
-declare namespace L {
-  type HeatLatLngTuple = [number, number, number?];
-  interface HeatMapOptions {
-    minOpacity?: number;
-    maxZoom?: number;
-    max?: number;
-    radius?: number;
-    blur?: number;
-    gradient?: Record<number, string>;
-  }
-  interface HeatLayer extends L.Layer {
-    setLatLngs(latlngs: HeatLatLngTuple[]): this;
-    addLatLng(latlng: HeatLatLngTuple): this;
-    setOptions(options: HeatMapOptions): this;
-    redraw(): this;
-  }
-  function heatLayer(
-    latlngs: HeatLatLngTuple[],
-    options?: HeatMapOptions,
-  ): HeatLayer;
-}
+/** leaflet.heat ships no types; it's imported purely for its side effect. */
+declare module "leaflet.heat";

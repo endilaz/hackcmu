@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as L from "leaflet";
-import "../lib/globalLeaflet";
-import "leaflet.heat";
+import {
+  createHeatLayer,
+  type HeatLayer,
+  type HeatPoint,
+} from "../lib/heat";
 import type { HeatmapScreenProps } from "../screenProps";
 
 const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -26,12 +29,12 @@ export default function HeatmapScreen({
 }: HeatmapScreenProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
-  const heatLayerRef = useRef<L.HeatLayer | null>(null);
+  const heatLayerRef = useRef<HeatLayer | null>(null);
   const destMarkersRef = useRef<L.Marker[]>([]);
   const hasFitRef = useRef(false);
 
-  const heatPoints = useMemo<L.HeatLatLngTuple[]>(
-    () => walks.flatMap((w) => w.trail.map((p): L.HeatLatLngTuple => [p.lat, p.lng])),
+  const heatPoints = useMemo<HeatPoint[]>(
+    () => walks.flatMap((w) => w.trail.map((p): HeatPoint => [p.lat, p.lng])),
     [walks],
   );
 
@@ -97,7 +100,7 @@ export default function HeatmapScreen({
       heatLayerRef.current = null;
     }
     if (heatPoints.length > 0) {
-      heatLayerRef.current = L.heatLayer(heatPoints, {
+      heatLayerRef.current = createHeatLayer(heatPoints, {
         radius: 25,
         blur: 20,
         maxZoom: 17,
