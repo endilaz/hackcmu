@@ -37,7 +37,7 @@ The demo is 78 s — the single largest block — because *Demo Quality* is its 
 
 **SAY:**
 
-> Between a 2:30 lecture and a 3:20 recitation you've got half an hour. Too short to plan anything — so you scroll.
+> Between a 3:20 lecture and a 4:00 recitation you've got half an hour. Too short to plan anything — so you scroll.
 >
 > Every travel app asks *where do you want to go.* Walkable asks the only question that actually matters: **how much time do you have?**
 
