@@ -21,6 +21,16 @@ export type LocationError = {
  */
 export interface LocationProvider {
   readonly kind: "real" | "sim";
+  /**
+   * The provider's idea of "now", in epoch ms. Real GPS returns Date.now().
+   * The simulator returns SIMULATED time, which advances by the speed
+   * multiplier - so a 10x walk covers 13.5 m per real second but reports 10 s
+   * of elapsed time per emit. Without this the trail filter in lib/tracking.ts
+   * would reject every simulated fix as a >3 m/s GPS jump, and the summary
+   * would show a 1.2 km walk completed in 72 seconds. The app must use this
+   * instead of Date.now() for anything walk-related.
+   */
+  now(): number;
   /** Begin emitting fixes. Safe to call twice; the second call replaces the first. */
   start(onFix: (fix: Fix) => void, onError?: (err: LocationError) => void): void;
   /** Stop emitting. Safe to call when not started. */
