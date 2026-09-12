@@ -51,16 +51,17 @@ const IDLE_EMIT_EVERY_N_TICKS = Math.max(
 );
 
 /**
- * Fraction of one baseline leg's length used as the perpendicular wobble
- * magnitude for interior waypoints (plan.md 8.3 calls for "10-25%"). Taken
- * literally, a zigzag with alternating +/- signs at 10-25% only inflates the
- * path by roughly 5-15% over the straight-line distance - short of the
- * 1.2-1.4x band DETOUR_FACTOR implies. Widened here (empirically, see the
- * self-test) so the alternating snake actually lands in that band; the plan
- * explicitly allows nudging this if it comes out well outside the target.
+ * Perpendicular wobble for interior waypoints, as a fraction of one leg.
+ *
+ * Kept low on purpose. A symmetric zigzag adds very little length, so matching
+ * DETOUR_FACTOR (1.3x) with wobble alone needs ~50% amplitude, which reads on
+ * screen as a drunk sawtooth rather than a person walking. Nothing compares the
+ * generated path against DETOUR_FACTOR - it's only used to estimate walk time
+ * when suggesting a destination - so we optimise for looking believable and let
+ * the path come out near 1.05-1.15x straight-line.
  */
-const WOBBLE_MIN_FRACTION = 0.42;
-const WOBBLE_MAX_FRACTION = 0.66;
+const WOBBLE_MIN_FRACTION = 0.1;
+const WOBBLE_MAX_FRACTION = 0.25;
 
 /** Minimum/maximum number of legs in a generated walking path (inclusive). */
 const MIN_LEGS = 6;
