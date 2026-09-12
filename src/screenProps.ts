@@ -17,6 +17,7 @@ import type {
   Walk,
 } from "./types";
 import type { Suggestion } from "./lib/selection";
+import type { WalkingRoute } from "./lib/directions";
 import type { LocationError, SimSettings } from "./location/LocationProvider";
 
 /** The four primary destinations in the bottom tab bar. */
@@ -45,6 +46,8 @@ export type TimeInputScreenProps = {
 
 export type SuggestionScreenProps = {
   suggestion: Suggestion;
+  walkingRoute: WalkingRoute | null;
+  routeLoading: boolean;
   user: LatLng | null;
   freeMinutes: number;
   onStart: () => void;
@@ -58,8 +61,10 @@ export type ActiveWalkScreenProps = {
   user: LatLng | null;
   /** Live elapsed time in ms, driven by the provider's clock (not Date.now()). */
   elapsedMs: number;
-  /** Straight-line metres left to the destination. */
+  /** Routed metres left when available; straight-line fallback otherwise. */
   remainingMeters: number;
+  /** The unwalked portion of the planned route. */
+  remainingRoute: LatLng[];
   onEndEarly: () => void;
 };
 

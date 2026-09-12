@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as L from "leaflet";
 import type { LatLng } from "../types";
 
@@ -9,16 +9,16 @@ export type MapViewProps = {
   destination: (LatLng & { name: string }) | null;
   /** Ordered GPS trail; render as a polyline. Empty array = no trail. */
   trail: LatLng[];
+  /** Planned street-following walking route. Empty array = no route. */
+  route?: LatLng[];
   /** Where the walk began; render a small distinct marker. */
   startPoint?: LatLng | null;
-  /** Draw a dashed straight line from user to destination ("as the crow flies"). */
-  dashedToDestination?: boolean;
   /** Extra class for the map container, e.g. "map--inset" for the fixed-height summary map. */
   className?: string;
-  /** Increment to force a re-fit / re-centre. Drives the "Recenter" button. */
-  recenterNonce?: number;
   /** Called when the USER drags or zooms the map (not when we move it ourselves). */
   onUserInteract?: () => void;
+  /** Called after a double-tap restores the automatic map view. */
+  onRecenter?: () => void;
 };
 
 const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -54,14 +54,14 @@ const TRAIL_STYLE: L.PolylineOptions = {
   lineJoin: "round",
 };
 
-// Straight, point-to-point, and hairline-thin on purpose: this is "as the crow
-// flies", not a route. There is no routing API behind it.
-const DASHED_STYLE: L.PolylineOptions = {
-  color: "#4a524a",
-  weight: 1.5,
-  opacity: 0.75,
-  dashArray: "5 7",
+// The route is the plan; the darker green trail above it is where the user
+// has actually walked. A pale casing keeps the route readable over map tiles.
+const ROUTE_STYLE: L.PolylineOptions = {
+  color: "#68766e",
+  weight: 5,
+  opacity: 0.88,
   lineCap: "round",
+  lineJoin: "round",
 };
 
 /** Create/update/remove a single point marker without ever removing+re-adding it. */
@@ -131,27 +131,23 @@ function syncTrail(
   }
 }
 
-/** Create/update/remove the dashed "as the crow flies" indicator line. */
-function syncDashedLine(
+/** Create/update/remove the planned street-following route. */
+function syncRoute(
   map: L.Map,
   ref: { current: L.Polyline | null },
-  user: LatLng | null,
-  destination: LatLng | null,
-  enabled: boolean | undefined,
+  route: LatLng[],
 ): void {
-  if (!enabled || !user || !destination) {
+  if (route.length < 2) {
     if (ref.current) {
       map.removeLayer(ref.current);
       ref.current = null;
     }
     return;
   }
-  const latlngs: L.LatLngTuple[] = [
-    [user.lat, user.lng],
-    [destination.lat, destination.lng],
-  ];
+  const latlngs: L.LatLngTuple[] = route.map((point) => [point.lat, point.lng]);
   if (!ref.current) {
-    ref.current = L.polyline(latlngs, DASHED_STYLE).addTo(map);
+    ref.current = L.polyline(latlngs, ROUTE_STYLE).addTo(map);
+    ref.current.bringToBack();
   } else {
     ref.current.setLatLngs(latlngs);
   }
@@ -163,10 +159,9 @@ export default function MapView(props: MapViewProps) {
     user,
     destination,
     trail,
+    route = [],
     startPoint,
-    dashedToDestination,
     className,
-    recenterNonce,
   } = props;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -176,7 +171,7 @@ export default function MapView(props: MapViewProps) {
   const destMarkerRef = useRef<L.Marker | null>(null);
   const startMarkerRef = useRef<L.Marker | null>(null);
   const trailLineRef = useRef<L.Polyline | null>(null);
-  const dashedLineRef = useRef<L.Polyline | null>(null);
+  const routeLineRef = useRef<L.Polyline | null>(null);
 
   // Always holds the latest props so the long-lived map event listeners
   // (registered once, below) never read stale values from the render that
@@ -194,7 +189,7 @@ export default function MapView(props: MapViewProps) {
   const programmaticMoveRef = useRef(false);
 
   // True once the user has manually dragged or zoomed; auto fit/follow is
-  // suspended until `recenterNonce` bumps (the screen's Recenter button).
+  // suspended until the user double-taps the map.
   const userHasControlRef = useRef(false);
 
   // "follow" mode: whether we've done the first hard setView on the user.
@@ -206,7 +201,8 @@ export default function MapView(props: MapViewProps) {
   // point appended during an active walk.
   const lastFitSignatureRef = useRef<string | null>(null);
 
-  const prevNonceRef = useRef(recenterNonce ?? 0);
+  const prevNonceRef = useRef(0);
+  const [doubleTapNonce, setDoubleTapNonce] = useState(0);
 
   // --- Create the Leaflet map exactly once. -------------------------------
   useEffect(() => {
@@ -217,6 +213,7 @@ export default function MapView(props: MapViewProps) {
       center: [0, 0],
       zoom: 13,
       scrollWheelZoom: true,
+      doubleClickZoom: false,
       zoomControl: false,
       attributionControl: true,
     });
@@ -236,6 +233,11 @@ export default function MapView(props: MapViewProps) {
     };
     map.on("dragstart", handleUserMove);
     map.on("zoomstart", handleUserMove);
+    const handleDoubleTap = () => {
+      setDoubleTapNonce((nonce) => nonce + 1);
+      latestPropsRef.current.onRecenter?.();
+    };
+    map.on("dblclick", handleDoubleTap);
 
     // The container is frequently still 0px tall on first paint (e.g. inside
     // a flex column that hasn't laid out yet), which renders as a grey/blank
@@ -258,6 +260,7 @@ export default function MapView(props: MapViewProps) {
       resizeObserver.disconnect();
       map.off("dragstart", handleUserMove);
       map.off("zoomstart", handleUserMove);
+      map.off("dblclick", handleDoubleTap);
 
       // React 19 StrictMode mounts, cleans up, and remounts every component
       // in development. If we don't destroy the map here, the second mount
@@ -272,7 +275,7 @@ export default function MapView(props: MapViewProps) {
       destMarkerRef.current = null;
       startMarkerRef.current = null;
       trailLineRef.current = null;
-      dashedLineRef.current = null;
+      routeLineRef.current = null;
       userHasControlRef.current = false;
       hasCenteredOnceRef.current = false;
       lastFitSignatureRef.current = null;
@@ -287,8 +290,8 @@ export default function MapView(props: MapViewProps) {
     syncMarker(map, userMarkerRef, user, USER_ICON);
     syncMarker(map, startMarkerRef, startPoint ?? null, START_ICON);
     syncDestinationMarker(map, destMarkerRef, destination);
+    syncRoute(map, routeLineRef, route);
     syncTrail(map, trailLineRef, trail);
-    syncDashedLine(map, dashedLineRef, user, destination, dashedToDestination);
 
     const beginProgrammaticMove = () => {
       programmaticMoveRef.current = true;
@@ -304,7 +307,7 @@ export default function MapView(props: MapViewProps) {
       }, 400);
     };
 
-    const nonce = recenterNonce ?? 0;
+    const nonce = doubleTapNonce;
     const nonceChanged = nonce !== prevNonceRef.current;
     prevNonceRef.current = nonce;
     if (nonceChanged) {
@@ -331,6 +334,9 @@ export default function MapView(props: MapViewProps) {
         d: destination ? [destination.lat, destination.lng] : null,
         s: startPoint ? [startPoint.lat, startPoint.lng] : null,
         t: trail.length > 0,
+        // A full Directions geometry replaces the two-point fallback after
+        // loading, so length is part of the signature and triggers one refit.
+        r: route.length,
       });
       const signatureChanged = signature !== lastFitSignatureRef.current;
       lastFitSignatureRef.current = signature;
@@ -340,6 +346,7 @@ export default function MapView(props: MapViewProps) {
         if (user) points.push([user.lat, user.lng]);
         if (destination) points.push([destination.lat, destination.lng]);
         if (startPoint) points.push([startPoint.lat, startPoint.lng]);
+        for (const p of route) points.push([p.lat, p.lng]);
         for (const p of trail) points.push([p.lat, p.lng]);
 
         if (points.length > 0) {
@@ -351,7 +358,7 @@ export default function MapView(props: MapViewProps) {
         }
       }
     }
-  }, [mode, user, destination, trail, startPoint, dashedToDestination, recenterNonce]);
+  }, [mode, user, destination, trail, route, startPoint, doubleTapNonce]);
 
   return (
     <div ref={containerRef} className={"map " + (className ?? "")} />

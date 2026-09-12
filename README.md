@@ -5,8 +5,8 @@ many free minutes you have, reads your location, and picks **one** nearby place 
 walk to and back in that time. It shows the destination on a map, then tracks the walk
 live with browser geolocation — drawing your GPS trail and accumulating distance — until
 it detects that you've arrived. Afterwards you get a summary of the walk, and the app
-nudges you toward places you haven't been yet. No accounts, no backend, no API keys:
-everything lives in your browser.
+nudges you toward places you haven't been yet. There are no accounts or backend;
+application state lives in your browser. A public Mapbox token supplies walking routes.
 
 ---
 
@@ -18,6 +18,11 @@ npm run dev      # http://localhost:5173
 npm run build    # type-checks with tsc, then builds to dist/
 npm test         # unit tests for the geo / selection / tracking math
 ```
+
+Copy `.env.example` to `.env.local` and set `VITE_MAPBOX_ACCESS_TOKEN` to a public
+Mapbox token. Public tokens are expected in browser apps; restrict the token to your
+production and preview URLs before deploying. If routing is unavailable, the app falls
+back to its local straight-line estimate and keeps the core walk flow usable.
 
 Browser geolocation needs a secure context. `localhost` counts, so the desktop flow
 works with no extra setup.
@@ -117,8 +122,11 @@ Every tunable number lives in **`src/constants.ts`**:
 | `MIN_DESTINATION_DISTANCE_M` | `75` | Closer than this and you're already there. |
 | `SIM_*` | — | Simulator defaults: start point, speed options, noise, emit intervals. |
 
-There is no routing API. Walk time is estimated as
-`haversine × DETOUR_FACTOR / WALK_SPEED_MPS`.
+Destination selection first uses
+`haversine × DETOUR_FACTOR / WALK_SPEED_MPS`, so finding a suggestion does not fan out
+into API calls for every destination. Once a destination is selected, Mapbox Directions
+provides its walking geometry, distance and duration. During a walk, that route is
+trimmed as the user progresses and refreshed only after the user moves materially off it.
 
 ---
 
@@ -196,7 +204,7 @@ progress rather than stranding it.
 - **Vite + React + TypeScript**, plain `leaflet` (not react-leaflet), plain CSS.
 - **Leaflet + OpenStreetMap** raster tiles. No API key, no token, no tile account.
 - **No backend, no database, no accounts.** State is a single `localStorage` key,
-  `sparewalk.state.v1`.
+  `sparewalk.state.v1`; Mapbox Directions is called directly from the browser.
 
 ### The design system
 

@@ -166,7 +166,7 @@ export class SimulatedLocationProvider implements SimulatedProvider {
       : null;
   }
 
-  walkTo(destination: LatLng | null): void {
+  walkTo(destination: LatLng | null, route?: LatLng[]): void {
     if (destination === null) {
       this.destination = null;
       this.path = null;
@@ -175,7 +175,9 @@ export class SimulatedLocationProvider implements SimulatedProvider {
       return;
     }
     this.destination = { lat: destination.lat, lng: destination.lng };
-    this.path = this.generatePath(this.position, this.destination);
+    this.path = route && route.length >= 2
+      ? this.pathFromRoute(this.position, this.destination, route)
+      : this.generatePath(this.position, this.destination);
     this.legIndex = 0;
     this.distanceIntoLeg = 0;
   }
@@ -338,6 +340,17 @@ export class SimulatedLocationProvider implements SimulatedProvider {
   }
 
   // === internal: path generation (plan.md 8.3) ===
+
+  private pathFromRoute(start: LatLng, destination: LatLng, route: LatLng[]): WalkPath {
+    const points = [{ ...start }, ...route.map((point) => ({ ...point }))];
+    if (haversineMeters(points[points.length - 1], destination) > 1) {
+      points.push({ ...destination });
+    }
+    const legLengths = points.slice(0, -1).map((point, index) =>
+      haversineMeters(point, points[index + 1]),
+    );
+    return { points, legLengths };
+  }
 
   private generatePath(start: LatLng, destination: LatLng): WalkPath {
     const straightDistance = haversineMeters(start, destination);

@@ -2,25 +2,37 @@ import MapView from "./MapView";
 import type { SuggestionScreenProps } from "../screenProps";
 import { ROUND_TRIP } from "../constants";
 import RippleButton from "./RippleButton";
+import { useState } from "react";
 
 /**
  * The payoff: one place, one decision. The map is the top of the screen and
  * the destination name is the largest thing on the paper below it.
  *
- * The dashed line to the destination is deliberately straight - there is no
- * routing API, and walk time is haversine x DETOUR_FACTOR. Drawing a
- * street-following route here would promise navigation the app cannot do.
+ * The selected destination gets one Mapbox walking route. Destination
+ * selection itself remains instant and local; routed figures replace the
+ * approximation as soon as the request completes.
  */
 export default function SuggestionScreen({
   suggestion,
+  walkingRoute,
+  routeLoading,
   user,
   freeMinutes,
   onStart,
   onReroll,
   onChangeTime,
 }: SuggestionScreenProps) {
-  const { destination, visited, oneWayMinutes, roundTripMinutes, overBudget, overByMinutes } =
-    suggestion;
+  const [mapOffCenter, setMapOffCenter] = useState(false);
+  const { destination, visited } = suggestion;
+  const oneWayMinutes = walkingRoute
+    ? Math.round(walkingRoute.durationSeconds / 60)
+    : suggestion.oneWayMinutes;
+  const roundTripMinutes = oneWayMinutes * 2;
+  const neededMinutes = ROUND_TRIP ? roundTripMinutes : oneWayMinutes;
+  const overBudget = walkingRoute ? neededMinutes > freeMinutes : suggestion.overBudget;
+  const overByMinutes = walkingRoute
+    ? Math.max(0, neededMinutes - freeMinutes)
+    : suggestion.overByMinutes;
 
   return (
     <div className="screen screen--map">
@@ -30,14 +42,18 @@ export default function SuggestionScreen({
           user={user}
           destination={{ lat: destination.lat, lng: destination.lng, name: destination.name }}
           trail={[]}
-          dashedToDestination
+          route={
+            walkingRoute?.geometry ??
+            (user ? [user, { lat: destination.lat, lng: destination.lng }] : [])
+          }
           className="map"
+          onUserInteract={() => setMapOffCenter(true)}
+          onRecenter={() => setMapOffCenter(false)}
         />
+        {mapOffCenter && <span className="map-recenter-hint">Double-tap to recenter</span>}
       </div>
 
       <div className="sheet">
-        <div className="sheet__handle" />
-
         {overBudget && (
           <div className="banner banner--warn">
             <span>
@@ -76,6 +92,12 @@ export default function SuggestionScreen({
             </div>
           )}
         </div>
+
+        {routeLoading && !walkingRoute && (
+          <p className="muted" style={{ margin: 0, fontSize: 12 }}>
+            Finding the walking route…
+          </p>
+        )}
 
         <RippleButton type="button" className="btn btn--primary" onClick={onStart}>
           Start walk
