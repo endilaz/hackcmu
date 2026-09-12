@@ -49,6 +49,7 @@ const DEST_ICON = L.divIcon({
 });
 
 const ECHO_ICON = L.divIcon({ className: "echo-bloom", html: "✦", iconSize: [22, 22], iconAnchor: [11, 11] });
+const NO_ECHOES: Echo[] = [];
 
 function syncEchoes(map: L.Map, refs: Map<string, L.Marker>, echoes: Echo[]) {
   const wanted = new Set(echoes.map((echo) => echo.id));
@@ -176,6 +177,7 @@ export default function MapView(props: MapViewProps) {
     route = [],
     startPoint,
     className,
+    echoes = NO_ECHOES,
   } = props;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -186,7 +188,6 @@ export default function MapView(props: MapViewProps) {
   const startMarkerRef = useRef<L.Marker | null>(null);
   const trailLineRef = useRef<L.Polyline | null>(null);
   const routeLineRef = useRef<L.Polyline | null>(null);
-  const dashedLineRef = useRef<L.Polyline | null>(null);
   const echoMarkersRef = useRef(new Map<string, L.Marker>());
 
   // Always holds the latest props so the long-lived map event listeners
@@ -240,6 +241,7 @@ export default function MapView(props: MapViewProps) {
     }).addTo(map);
 
     mapRef.current = map;
+    const echoMarkers = echoMarkersRef.current;
 
     const handleUserMove = () => {
       // Ignore moves we started ourselves (setView/panTo/fitBounds).
@@ -292,8 +294,7 @@ export default function MapView(props: MapViewProps) {
       startMarkerRef.current = null;
       trailLineRef.current = null;
       routeLineRef.current = null;
-      dashedLineRef.current = null;
-      echoMarkersRef.current.clear();
+      echoMarkers.clear();
       userHasControlRef.current = false;
       hasCenteredOnceRef.current = false;
       lastFitSignatureRef.current = null;
@@ -310,8 +311,7 @@ export default function MapView(props: MapViewProps) {
     syncDestinationMarker(map, destMarkerRef, destination);
     syncRoute(map, routeLineRef, route);
     syncTrail(map, trailLineRef, trail);
-    syncDashedLine(map, dashedLineRef, user, destination, dashedToDestination);
-    syncEchoes(map, echoMarkersRef.current, props.echoes ?? []);
+    syncEchoes(map, echoMarkersRef.current, echoes);
 
     const beginProgrammaticMove = () => {
       programmaticMoveRef.current = true;
@@ -331,7 +331,7 @@ export default function MapView(props: MapViewProps) {
     const nonceChanged = nonce !== prevNonceRef.current;
     prevNonceRef.current = nonce;
     if (nonceChanged) {
-      // The screen's Recenter button: give control back to the map.
+      // A double-tap gives automatic view control back to the map.
       userHasControlRef.current = false;
     }
 
@@ -378,7 +378,7 @@ export default function MapView(props: MapViewProps) {
         }
       }
     }
-  }, [mode, user, destination, trail, route, startPoint, doubleTapNonce]);
+  }, [mode, user, destination, trail, route, startPoint, echoes, doubleTapNonce]);
 
   return (
     <div ref={containerRef} className={"map " + (className ?? "")} />
